@@ -127,7 +127,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 LOGIN_URL = "authentication:login"
-LOGIN_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = "dashboard:home"
 LOGOUT_REDIRECT_URL = "authentication:login"
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -244,9 +244,8 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_TIMEZONE = "America/Sao_Paulo"
 
-# Agendamento das tasks de notificação (exige um worker + beat rodando de
-# verdade — nenhum dos dois está ativo neste ambiente de desenvolvimento;
-# isso aqui é a configuração pronta para quando existir).
+# Agendamento das tasks periódicas (exige um worker + beat rodando de
+# verdade — ver README para como subir os dois processos).
 CELERY_BEAT_SCHEDULE = {
     "send-appointment-reminders": {
         "task": "apps.notifications.tasks.send_appointment_reminders",
@@ -259,6 +258,10 @@ CELERY_BEAT_SCHEDULE = {
     "send-return-reminders": {
         "task": "apps.notifications.tasks.send_return_reminders",
         "schedule": crontab(hour=9, minute=0),  # todo dia às 9h
+    },
+    "sync-external-calendars": {
+        "task": "apps.calendar_sync.tasks.sync_all_calendars",
+        "schedule": crontab(minute="*/15"),  # a cada 15 minutos
     },
 }
 

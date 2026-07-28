@@ -39,6 +39,27 @@ python manage.py runserver
 
 `config.settings.local` é o padrão do `manage.py`. Use `DJANGO_SETTINGS_MODULE=config.settings.test` para rodar a suíte (`pytest`), e `config.settings.production`/`staging` em deploy.
 
+### Tasks periódicas (Celery worker + beat)
+
+Lembretes de agendamento, aniversário, retorno e a sincronização de calendário externo (`apps.calendar_sync.tasks.sync_all_calendars`, a cada 15 min) só rodam com um worker **e** um beat ativos — nenhum dos dois inicia sozinho com `runserver`. Precisa do Redis rodando (ver seção de ambiente local acima). Em dois terminais separados:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+celery -A config worker --loglevel=info --pool=solo   # --pool=solo é obrigatório no Windows
+```
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+celery -A config beat --loglevel=info
+```
+
+Para disparar uma sincronização de calendário manualmente (sem esperar os 15 min), sem precisar do beat:
+
+```python
+from apps.calendar_sync.tasks import sync_all_calendars
+sync_all_calendars.delay()
+```
+
 ## Multi-tenant
 
 Toda request passa pelo `TenantResolutionMiddleware` (`apps/tenants/middleware.py`), que resolve o tenant pelo `Host` header (subdomínio `empresa.<TENANT_BASE_DOMAIN>` ou domínio próprio verificado) e popula o contextvar usado pelos managers (`apps/core/models.py`). Em desenvolvimento local, `localhost`/`127.0.0.1` (variável `TENANT_BYPASS_HOSTS`) pulam a resolução de tenant — é assim que `/admin/` funciona sem precisar configurar um subdomínio real. Esse atalho fica vazio em produção.

@@ -3,7 +3,7 @@
 {% block content %}
 <div class="max-w-2xl mx-auto py-10 px-4 space-y-6">
   <div>
-    <h1 class="text-2xl font-semibold">Calendário de {{ professional.name }}</h1>
+    <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Calendário de {{ professional.name }}</h1>
     <p class="text-sm text-gray-500">Sincronize a agenda deste profissional com um calendário externo.</p>
   </div>
 
@@ -17,7 +17,7 @@
     {% for connection in connections %}
     <div class="p-4 flex items-center justify-between">
       <div>
-        <p class="font-medium text-sm">{{ connection.get_provider_display }}</p>
+        <p class="font-medium text-sm text-gray-900">{{ connection.get_provider_display }}</p>
         <p class="text-xs text-gray-500">
           {% if connection.last_synced_at %}Última sincronização: {{ connection.last_synced_at|date:"d/m/Y H:i" }}{% else %}Ainda não sincronizado{% endif %}
         </p>
@@ -25,7 +25,7 @@
       <div class="flex items-center gap-3">
         <form method="post" action="{% url 'calendar_sync:sync_direction' professional.pk connection.pk %}">
           {% csrf_token %}
-          <select name="sync_direction" onchange="this.form.submit()" class="text-sm rounded-lg border border-gray-300 px-2 py-1">
+          <select name="sync_direction" onchange="this.form.submit()" class="text-sm text-gray-900 bg-white rounded-lg border border-gray-300 px-2 py-1">
             {% for value, label in connection.SyncDirection.choices %}
             <option value="{{ value }}" {% if connection.sync_direction == value %}selected{% endif %}>{{ label }}</option>
             {% endfor %}
@@ -43,11 +43,11 @@
   </div>
 
   <div class="bg-white border border-gray-200 rounded-xl p-6">
-    <h2 class="font-medium mb-4">Conectar novo calendário</h2>
+    <h2 class="font-medium mb-4 text-gray-900">Conectar novo calendário</h2>
     <div class="flex flex-wrap gap-3">
       {% for option in provider_options %}
       <a href="{% url 'calendar_sync:connect' professional.pk option.key %}"
-         class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50 {% if not option.configured %}opacity-50{% endif %}">
+         class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50 {% if not option.configured %}opacity-50{% endif %}">
         {{ option.label }}{% if not option.configured %} (não configurado){% endif %}
       </a>
       {% endfor %}

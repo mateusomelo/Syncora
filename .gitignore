@@ -17,6 +17,7 @@ media/*
 
 *.sqlite3
 *.log
+celerybeat-schedule*
 
 .pytest_cache/
 .coverage
