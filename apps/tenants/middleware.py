@@ -26,22 +26,35 @@ class TenantResolutionMiddleware:
 
     def __call__(self, request):
         host = request.get_host().split(":")[0].lower()
+        is_admin_host = host == settings.PLATFORM_ADMIN_HOST or host in settings.TENANT_BYPASS_HOSTS
 
-        if host == settings.PLATFORM_ADMIN_HOST or host in settings.TENANT_BYPASS_HOSTS:
-            request.tenant = None
-            return self.get_response(request)
-
-        tenant = self._resolve_tenant(host)
-        if tenant is None or not tenant.is_operational:
-            raise Http404("Empresa não encontrada ou inativa para este domínio.")
+        if is_admin_host:
+            # No domínio administrativo (ou bypass local), só existe tenant se
+            # o Super Admin estiver em uma sessão de impersonação ativa —
+            # iniciada e auditada por apps.platform_admin.
+            tenant = self._resolve_impersonated_tenant(request)
+        else:
+            tenant = self._resolve_tenant(host)
+            if tenant is None or not tenant.is_operational:
+                raise Http404("Empresa não encontrada ou inativa para este domínio.")
 
         request.tenant = tenant
+        request.is_impersonating = is_admin_host and tenant is not None
+
+        if tenant is None:
+            return self.get_response(request)
+
         token = set_current_tenant_id(tenant.id)
         try:
-            response = self.get_response(request)
+            return self.get_response(request)
         finally:
             reset_current_tenant_id(token)
-        return response
+
+    def _resolve_impersonated_tenant(self, request):
+        tenant_id = request.session.get("impersonating_tenant_id")
+        if not tenant_id:
+            return None
+        return Tenant.objects.filter(id=tenant_id).first()
 
     def _resolve_tenant(self, host):
         cache_key = f"tenant_resolution:{host}"
