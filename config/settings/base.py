@@ -45,6 +45,7 @@ LOCAL_APPS = [
     "apps.clients",
     "apps.staff",
     "apps.services",
+    "apps.scheduling",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -137,6 +138,10 @@ TENANT_BYPASS_HOSTS = env.list("TENANT_BYPASS_HOSTS", default=["localhost", "127
 AXES_FAILURE_LIMIT = 5
 AXES_COOLOFF_TIME = 1  # hora
 AXES_RESET_ON_SUCCESS = True
+# Padrão do django-axes é bloquear só por IP — isso bloqueia todo mundo atrás
+# do mesmo NAT/proxy corporativo quando uma única conta erra a senha 5 vezes.
+# Bloquear por (username, IP) é o recomendado para não gerar esse efeito colateral.
+AXES_LOCKOUT_PARAMETERS = ["username", "ip_address"]
 
 # --- DRF / JWT --------------------------------------------------------
 

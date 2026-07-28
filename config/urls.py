@@ -9,6 +9,7 @@ urlpatterns = [
     path("app/clientes/", include("apps.clients.urls")),
     path("app/profissionais/", include("apps.staff.urls")),
     path("app/servicos/", include("apps.services.urls")),
+    path("app/agenda/", include("apps.scheduling.urls")),
 ]
 
 if settings.DEBUG:
