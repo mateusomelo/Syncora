@@ -45,7 +45,15 @@ Toda request passa pelo `TenantResolutionMiddleware` (`apps/tenants/middleware.p
 
 ## Estrutura
 
-Ver a árvore completa e a responsabilidade de cada app em `docs/architecture/00-arquitetura-aprovada.md`. Implementado e testado até agora (fases 1–9 do plano): `core`, `tenants`, `accounts`, `authentication`, `audit`, `platform_admin`, `branding`, `clients`, `staff`, `services`, `scheduling`, `finance`, `reports`, `dashboard`, `notifications`, `calendar_sync`. Restam: módulos verticais (`verticals/barber|psychology|dentistry`), hardening de produção e preparação de lançamento.
+Ver a árvore completa e a responsabilidade de cada app em `docs/architecture/00-arquitetura-aprovada.md`. Implementado e testado até agora (fases 1–10 do plano): `core`, `tenants`, `accounts`, `authentication`, `audit`, `platform_admin`, `branding`, `clients`, `staff`, `services`, `scheduling`, `finance`, `reports`, `dashboard`, `notifications`, `calendar_sync`, `verticals/registry` + `verticals/barber|dentistry|psychology`. Restam: hardening de produção e preparação de lançamento (fases 11–12).
+
+### Módulos verticais (`apps/verticals/*`)
+
+Habilitados por empresa via FeatureFlag (`barbearia`, `odontograma`, `psicologia` — painel do Super Admin). `apps/verticals/registry.py` decide quais estão ativos e o `VerticalRequiredMixin` bloqueia (404) acesso direto a uma URL de um módulo desativado, não só esconde o menu.
+
+- **Barbearia**: pacotes de sessões (com controle de sessões restantes por cliente), produtos, e um fluxo de caixa (abrir/fechar/movimentar).
+- **Odontologia**: prontuário unificado por paciente — odontograma (32 dentes, notação FDI), anamnese, tratamentos, receitas, atestados e orçamentos com parcelamento automático.
+- **Psicologia**: prontuário com controle de acesso reforçado (LGPD) — **nem admin da empresa nem Super Admin veem o conteúdo clínico por padrão**, só o profissional responsável ou quem recebeu concessão explícita. Ver `apps/verticals/psychology/models.py:ClinicalRecord.user_has_access()`.
 
 ## Sincronização de calendário externo (Google/Outlook)
 
