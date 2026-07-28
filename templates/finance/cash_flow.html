@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Fluxo de Caixa · Syncora{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto py-10 px-4">
+  <h1 class="text-2xl font-semibold mb-6">Fluxo de Caixa</h1>
+
+  <form method="get" class="flex gap-3 items-end mb-6">
+    <div>
+      <label class="block text-sm font-medium mb-1">De</label>
+      <input type="date" name="start" value="{{ start|date:'Y-m-d' }}" class="rounded-lg border border-gray-300 px-3 py-2 text-sm">
+    </div>
+    <div>
+      <label class="block text-sm font-medium mb-1">Até</label>
+      <input type="date" name="end" value="{{ end|date:'Y-m-d' }}" class="rounded-lg border border-gray-300 px-3 py-2 text-sm">
+    </div>
+    <button class="rounded-lg bg-gray-900 text-white px-4 py-2 text-sm font-medium hover:bg-gray-800">Filtrar</button>
+  </form>
+
+  <div class="grid grid-cols-3 gap-4 mb-8">
+    <div class="bg-white border border-gray-200 rounded-xl p-6">
+      <p class="text-sm text-gray-500">Receitas</p>
+      <p class="text-2xl font-semibold text-green-600">R$ {{ total_revenue }}</p>
+    </div>
+    <div class="bg-white border border-gray-200 rounded-xl p-6">
+      <p class="text-sm text-gray-500">Despesas</p>
+      <p class="text-2xl font-semibold text-red-600">R$ {{ total_expense }}</p>
+    </div>
+    <div class="bg-white border border-gray-200 rounded-xl p-6">
+      <p class="text-sm text-gray-500">Saldo</p>
+      <p class="text-2xl font-semibold">R$ {{ net }}</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6">
+    <div>
+      <h2 class="font-medium mb-3">Receitas</h2>
+      <div class="bg-white border border-gray-200 rounded-xl divide-y divide-gray-100">
+        {% for r in revenues %}
+        <div class="p-3 text-sm flex justify-between">
+          <span>{{ r.received_at|date:"d/m" }} · {{ r.description|default:"—" }}</span>
+          <span class="font-medium">R$ {{ r.amount }}</span>
+        </div>
+        {% empty %}
+        <p class="p-4 text-sm text-gray-400 text-center">Nenhuma receita no período.</p>
+        {% endfor %}
+      </div>
+      <a href="{% url 'finance:revenue_create' %}" class="text-sm text-gray-500 hover:text-gray-900 mt-2 inline-block">+ Lançar receita</a>
+    </div>
+    <div>
+      <h2 class="font-medium mb-3">Despesas</h2>
+      <div class="bg-white border border-gray-200 rounded-xl divide-y divide-gray-100">
+        {% for e in expenses %}
+        <div class="p-3 text-sm flex justify-between">
+          <span>{{ e.due_date|date:"d/m" }} · {{ e.category }}{% if not e.is_paid %} <span class="text-amber-600">(em aberto)</span>{% endif %}</span>
+          <span class="font-medium">R$ {{ e.amount }}</span>
+        </div>
+        {% empty %}
+        <p class="p-4 text-sm text-gray-400 text-center">Nenhuma despesa no período.</p>
+        {% endfor %}
+      </div>
+      <a href="{% url 'finance:expense_create' %}" class="text-sm text-gray-500 hover:text-gray-900 mt-2 inline-block">+ Lançar despesa</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

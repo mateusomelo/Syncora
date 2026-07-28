@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · Syncora{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto py-10 px-4">
+  <h1 class="text-2xl font-semibold mb-6">Dashboard · {{ today|date:"d/m/Y" }}</h1>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white border border-gray-200 rounded-xl p-6">
+      <p class="text-sm text-gray-500">Agendamentos hoje</p>
+      <p class="text-2xl font-semibold">{{ today_count }}</p>
+    </div>
+    <div class="bg-white border border-gray-200 rounded-xl p-6">
+      <p class="text-sm text-gray-500">Aguardando</p>
+      <p class="text-2xl font-semibold">{{ waiting_count }}</p>
+    </div>
+    <div class="bg-white border border-gray-200 rounded-xl p-6">
+      <p class="text-sm text-gray-500">Concluídos hoje</p>
+      <p class="text-2xl font-semibold">{{ completed_count }}</p>
+    </div>
+    <div class="bg-white border border-gray-200 rounded-xl p-6">
+      <p class="text-sm text-gray-500">Cancelamentos hoje</p>
+      <p class="text-2xl font-semibold">{{ cancelled_today }}</p>
+    </div>
+    <div class="bg-white border border-gray-200 rounded-xl p-6">
+      <p class="text-sm text-gray-500">Faturamento hoje</p>
+      <p class="text-2xl font-semibold text-green-600">R$ {{ revenue_today }}</p>
+    </div>
+    <div class="bg-white border border-gray-200 rounded-xl p-6">
+      <p class="text-sm text-gray-500">Faturamento no mês</p>
+      <p class="text-2xl font-semibold text-green-600">R$ {{ revenue_month }}</p>
+    </div>
+    <div class="bg-white border border-gray-200 rounded-xl p-6">
+      <p class="text-sm text-gray-500">Profissional mais ocupado</p>
+      <p class="text-lg font-semibold">{{ busiest_professional.professional__name|default:"—" }}</p>
+    </div>
+    <div class="bg-white border border-gray-200 rounded-xl p-6">
+      <p class="text-sm text-gray-500">Profissionais ativos</p>
+      <p class="text-2xl font-semibold">{{ active_professionals_count }}</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6">
+    <div class="bg-white border border-gray-200 rounded-xl p-6">
+      <h2 class="font-medium mb-4">Serviços mais usados (mês)</h2>
+      <div class="space-y-3">
+        {% for s in top_services %}
+        <div>
+          <div class="flex justify-between text-sm mb-1">
+            <span>{{ s.service__name }}</span>
+            <span class="text-gray-500">{{ s.total }}</span>
+          </div>
+          <div class="h-2 bg-gray-100 rounded-full">
+            <div class="h-2 bg-gray-900 rounded-full" style="width: {% widthratio s.total max_service_total 100 %}%"></div>
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-sm text-gray-400">Sem dados ainda este mês.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200 font-medium">Agenda de hoje</div>
+      <div class="divide-y divide-gray-100">
+        {% for a in today_agenda %}
+        <a href="{% url 'scheduling:appointment_detail' a.pk %}" class="block px-6 py-3 hover:bg-gray-50 text-sm">
+          <div class="flex justify-between">
+            <span class="font-medium">{{ a.start_at|date:"H:i" }} · {{ a.client.name }}</span>
+            <span class="text-gray-500">{{ a.professional.name }}</span>
+          </div>
+          <span class="text-gray-500">{{ a.service.name }}</span>
+        </a>
+        {% empty %}
+        <p class="px-6 py-6 text-center text-sm text-gray-400">Nenhum agendamento hoje.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

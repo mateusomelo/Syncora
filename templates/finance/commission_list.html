@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Comissões · Syncora{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto py-10 px-4">
+  <h1 class="text-2xl font-semibold mb-6">Comissões</h1>
+  <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-left text-gray-500">
+        <tr><th class="px-4 py-3">Profissional</th><th class="px-4 py-3">Atendimento</th><th class="px-4 py-3">Valor</th><th class="px-4 py-3">%</th><th class="px-4 py-3">Status</th><th class="px-4 py-3"></th></tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for c in commissions %}
+        <tr>
+          <td class="px-4 py-3 font-medium">{{ c.professional.name }}</td>
+          <td class="px-4 py-3 text-gray-500">{{ c.appointment.client.name }} · {{ c.appointment.start_at|date:"d/m" }}</td>
+          <td class="px-4 py-3">R$ {{ c.amount }}</td>
+          <td class="px-4 py-3 text-gray-500">{{ c.percentage }}%</td>
+          <td class="px-4 py-3">
+            {% if c.paid %}<span class="text-green-700 text-xs">Paga</span>
+            {% else %}<span class="text-amber-600 text-xs">Pendente</span>{% endif %}
+          </td>
+          <td class="px-4 py-3 text-right">
+            {% if not c.paid %}
+            <form method="post" action="{% url 'finance:commission_mark_paid' c.pk %}">
+              {% csrf_token %}
+              <button class="text-gray-900 hover:underline">Marcar paga</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="px-4 py-6 text-center text-gray-400">Nenhuma comissão gerada ainda.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

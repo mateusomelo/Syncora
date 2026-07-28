@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Relatório Financeiro · Syncora{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto py-10 px-4">
+  <h1 class="text-2xl font-semibold mb-4">Financeiro</h1>
+  {% include "reports/_filter_bar.html" %}
+  <div class="grid grid-cols-3 gap-4 mb-6">
+    <div class="bg-white border border-gray-200 rounded-xl p-6">
+      <p class="text-sm text-gray-500">Receitas</p>
+      <p class="text-xl font-semibold text-green-600">R$ {{ total_revenue }}</p>
+    </div>
+    <div class="bg-white border border-gray-200 rounded-xl p-6">
+      <p class="text-sm text-gray-500">Despesas</p>
+      <p class="text-xl font-semibold text-red-600">R$ {{ total_expense }}</p>
+    </div>
+    <div class="bg-white border border-gray-200 rounded-xl p-6">
+      <p class="text-sm text-gray-500">Saldo</p>
+      <p class="text-xl font-semibold">R$ {{ net }}</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

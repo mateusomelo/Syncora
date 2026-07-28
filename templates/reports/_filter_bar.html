@@ -1,0 +1,13 @@
+<form method="get" class="flex gap-3 items-end mb-6">
+  <div>
+    <label class="block text-sm font-medium mb-1">De</label>
+    <input type="date" name="start" value="{{ start|date:'Y-m-d' }}" class="rounded-lg border border-gray-300 px-3 py-2 text-sm">
+  </div>
+  <div>
+    <label class="block text-sm font-medium mb-1">Até</label>
+    <input type="date" name="end" value="{{ end|date:'Y-m-d' }}" class="rounded-lg border border-gray-300 px-3 py-2 text-sm">
+  </div>
+  <button class="rounded-lg bg-gray-900 text-white px-4 py-2 text-sm font-medium hover:bg-gray-800">Filtrar</button>
+  <a href="?start={{ start|date:'Y-m-d' }}&end={{ end|date:'Y-m-d' }}&export=xlsx" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50">Exportar Excel</a>
+  <a href="?start={{ start|date:'Y-m-d' }}&end={{ end|date:'Y-m-d' }}&export=pdf" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50">Exportar PDF</a>
+</form>
