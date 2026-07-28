@@ -7,6 +7,18 @@
     <title>{% block title %}Syncora{% endblock %}</title>
     {% if branding.favicon %}<link rel="icon" href="{{ branding.favicon.url }}">{% endif %}
 
+    {# PWA: instalável, ícones e service worker cache-first só para estáticos (ver static/src/js/sw.js). #}
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <link rel="apple-touch-icon" href="{% static 'img/icon-192.png' %}">
+    <meta name="theme-color" content="{{ branding.color_primary }}">
+    <script>
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", function () {
+                navigator.serviceWorker.register("/sw.js");
+            });
+        }
+    </script>
+
     <script>
         // Tema "auto" segue o SO e reage a mudanças em tempo real; light/dark
         // são forçados via classe (ver branding.theme_mode, injetado acima).

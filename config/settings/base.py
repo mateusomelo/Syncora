@@ -185,11 +185,22 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
+        "apps.core.permissions.HasTenantMembership",
     ],
     "DEFAULT_PAGINATION_CLASS": "apps.core.pagination.StandardResultsPagination",
     "PAGE_SIZE": 25,
     "EXCEPTION_HANDLER": "apps.core.exceptions.api_exception_handler",
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_THROTTLE_CLASSES": [
+        "apps.api.throttling.PlanRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        # Usados só como piso de segurança para usuários sem tenant
+        # resolvido (ex.: platform admin) — o limite por empresa de
+        # verdade vem do Plan (ver apps/api/throttling.py).
+        "user": "300/min",
+        "anon": "20/min",
+    },
 }
 
 SIMPLE_JWT = {
@@ -269,7 +280,10 @@ LOCALE_PATHS = [BASE_DIR / "locale"]
 # --- Arquivos estáticos e mídia ------------------------------------------
 
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "static" / "dist"]
+# "dist" é a saída do pipeline Tailwind CLI (ainda não construído — Fase 4b
+# pendente, ver templates/base.html); "src" já serve hoje os assets que não
+# precisam de build (ícones do PWA, manifest, service worker).
+STATICFILES_DIRS = [BASE_DIR / "static" / "dist", BASE_DIR / "static" / "src"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = "/media/"
