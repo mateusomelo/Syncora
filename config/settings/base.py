@@ -51,6 +51,7 @@ LOCAL_APPS = [
     "apps.reports",
     "apps.dashboard",
     "apps.notifications",
+    "apps.calendar_sync",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -139,6 +140,29 @@ AUTH_PASSWORD_VALIDATORS = [
 PLATFORM_ADMIN_HOST = env("PLATFORM_ADMIN_HOST", default="admin.syncora.local")
 TENANT_BASE_DOMAIN = env("TENANT_BASE_DOMAIN", default="syncora.local")
 TENANT_BYPASS_HOSTS = env.list("TENANT_BYPASS_HOSTS", default=["localhost", "127.0.0.1"])
+
+# Chave de criptografia (Fernet) para tokens OAuth de terceiros em repouso —
+# ver apps/core/fields.py:EncryptedTextField. Não é a mesma coisa que
+# SECRET_KEY (rotacionar uma não deve depender da outra).
+FIELD_ENCRYPTION_KEY = env("FIELD_ENCRYPTION_KEY")
+
+# Sincronização de calendário externo (Google/Outlook) — ver
+# apps/calendar_sync/providers.py. Credenciais em branco por padrão: os
+# botões de conectar aparecem, mas falham com mensagem clara em vez de
+# quebrar a aplicação até você gerar as credenciais reais.
+GOOGLE_OAUTH_CLIENT_ID = env("GOOGLE_OAUTH_CLIENT_ID", default="")
+GOOGLE_OAUTH_CLIENT_SECRET = env("GOOGLE_OAUTH_CLIENT_SECRET", default="")
+MICROSOFT_OAUTH_CLIENT_ID = env("MICROSOFT_OAUTH_CLIENT_ID", default="")
+MICROSOFT_OAUTH_CLIENT_SECRET = env("MICROSOFT_OAUTH_CLIENT_SECRET", default="")
+# Host fixo do callback OAuth — Google/Microsoft exigem um redirect_uri
+# cadastrado antecipadamente e idêntico a cada chamada, então não dá pra
+# usar o subdomínio dinâmico de cada empresa. Fica fora da resolução de
+# tenant (mesmo tratamento do PLATFORM_ADMIN_HOST) e redireciona de volta
+# para o subdomínio certo assim que a conexão é concluída.
+CALENDAR_SYNC_HOST = env("CALENDAR_SYNC_HOST", default="connect.syncora.app")
+CALENDAR_SYNC_CALLBACK_BASE_URL = env(
+    "CALENDAR_SYNC_CALLBACK_BASE_URL", default=f"https://{CALENDAR_SYNC_HOST}"
+)
 
 AXES_FAILURE_LIMIT = 5
 AXES_COOLOFF_TIME = 1  # hora

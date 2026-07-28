@@ -7,7 +7,10 @@
       <h1 class="text-2xl font-semibold">{{ professional.name }}</h1>
       <p class="text-sm text-gray-500">{{ professional.specialties|default:"—" }} · Comissão {{ professional.commission_rate }}%</p>
     </div>
-    <a href="{% url 'staff:update' professional.pk %}" class="text-sm font-medium text-gray-900 hover:underline">Editar</a>
+    <div class="flex items-center gap-4">
+      <a href="{% url 'calendar_sync:professional_calendar' professional.pk %}" class="text-sm font-medium text-gray-900 hover:underline">Calendário externo</a>
+      <a href="{% url 'staff:update' professional.pk %}" class="text-sm font-medium text-gray-900 hover:underline">Editar</a>
+    </div>
   </div>
 
   <div class="bg-white border border-gray-200 rounded-xl p-6">

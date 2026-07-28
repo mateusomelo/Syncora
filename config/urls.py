@@ -13,6 +13,8 @@ urlpatterns = [
     path("app/financeiro/", include("apps.finance.urls")),
     path("app/relatorios/", include("apps.reports.urls")),
     path("app/", include("apps.dashboard.urls")),
+    path("app/", include("apps.calendar_sync.urls")),
+    path("calendar-sync/", include("apps.calendar_sync.urls_callback")),
 ]
 
 if settings.DEBUG:

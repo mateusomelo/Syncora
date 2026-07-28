@@ -45,4 +45,26 @@ Toda request passa pelo `TenantResolutionMiddleware` (`apps/tenants/middleware.p
 
 ## Estrutura
 
-Ver a árvore completa e a responsabilidade de cada app em `docs/architecture/00-arquitetura-aprovada.md`. Implementado até agora: `core`, `tenants`, `accounts`, `authentication`, `audit`. Os demais apps (`platform_admin`, `branding`, `clients`, `staff`, `services`, `scheduling`, `calendar_sync`, `finance`, `reports`, `notifications`, `dashboard`, `verticals/*`, `api`) estão scaffolded (pasta criada) e serão implementados nas próximas fases do plano.
+Ver a árvore completa e a responsabilidade de cada app em `docs/architecture/00-arquitetura-aprovada.md`. Implementado e testado até agora (fases 1–9 do plano): `core`, `tenants`, `accounts`, `authentication`, `audit`, `platform_admin`, `branding`, `clients`, `staff`, `services`, `scheduling`, `finance`, `reports`, `dashboard`, `notifications`, `calendar_sync`. Restam: módulos verticais (`verticals/barber|psychology|dentistry`), hardening de produção e preparação de lançamento.
+
+## Sincronização de calendário externo (Google/Outlook)
+
+O app `calendar_sync` está pronto (OAuth, tokens criptografados, importação/exportação de eventos, cores por origem na agenda), mas **as credenciais são suas** — sem elas, o botão de conectar aparece e avisa que a integração não está configurada, em vez de quebrar. Para ligar de verdade:
+
+**Google Calendar** (console.cloud.google.com):
+1. Crie um projeto → ative a "Google Calendar API".
+2. Tela de consentimento OAuth → tipo "Externo" (ou "Interno" se for Google Workspace).
+3. Credenciais → "ID do cliente OAuth" → tipo "Aplicativo da Web".
+4. Em "URIs de redirecionamento autorizados", cadastre exatamente: `{CALENDAR_SYNC_CALLBACK_BASE_URL}/calendar-sync/google/callback/` (em produção, algo como `https://connect.syncora.app/calendar-sync/google/callback/`).
+5. Copie o Client ID e o Client Secret para `GOOGLE_OAUTH_CLIENT_ID` / `GOOGLE_OAUTH_CLIENT_SECRET` no `.env`.
+
+**Outlook/Microsoft 365** (portal.azure.com → Azure Active Directory → App registrations):
+1. Novo registro de app → tipo "Contas em qualquer diretório organizacional e contas pessoais".
+2. Em "Redirect URIs" (plataforma Web), cadastre: `{CALENDAR_SYNC_CALLBACK_BASE_URL}/calendar-sync/outlook/callback/`.
+3. "Certificates & secrets" → novo client secret.
+4. "API permissions" → Microsoft Graph → adicione `Calendars.ReadWrite` e `offline_access`.
+5. Copie Application (client) ID e o secret para `MICROSOFT_OAUTH_CLIENT_ID` / `MICROSOFT_OAUTH_CLIENT_SECRET`.
+
+**Apple Calendar (iCloud)** ainda não está implementado — a Apple não oferece OAuth2 para apps de terceiros; o acesso real é via CalDAV com uma senha de app gerada no Apple ID, um mecanismo diferente do usado acima. Fica para uma fase futura.
+
+`CALENDAR_SYNC_HOST` é um domínio fixo e separado (não o subdomínio de cada empresa) porque Google/Microsoft exigem um redirect_uri idêntico a cada chamada — não dá pra cadastrar o subdomínio de cada cliente. Em produção, aponte um subdomínio real (ex.: `connect.syncora.app`) pra essa variável e cadastre-o nos consoles acima; em desenvolvimento local já vem configurado como `connect.localhost`.

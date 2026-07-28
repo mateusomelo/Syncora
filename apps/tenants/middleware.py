@@ -15,8 +15,11 @@ class TenantResolutionMiddleware:
     request e injeta em request.tenant + contextvar (lido pelo TenantManager
     em apps.core.models). Roda antes da autenticação.
 
-    Dois hosts escapam da resolução de tenant por design:
+    Três hosts escapam da resolução de tenant por design:
     - PLATFORM_ADMIN_HOST: área do Super Admin, cross-tenant por natureza.
+    - CALENDAR_SYNC_HOST: callback fixo de OAuth (Google/Outlook exigem um
+      redirect_uri cadastrado antecipadamente, não dá pra usar o
+      subdomínio de cada empresa) — ver apps/calendar_sync.
     - TENANT_BYPASS_HOSTS: conveniência de desenvolvimento local
       (localhost/127.0.0.1) — deve ficar vazio em produção.
     """
@@ -26,6 +29,12 @@ class TenantResolutionMiddleware:
 
     def __call__(self, request):
         host = request.get_host().split(":")[0].lower()
+
+        if host == settings.CALENDAR_SYNC_HOST:
+            request.tenant = None
+            request.is_impersonating = False
+            return self.get_response(request)
+
         is_admin_host = host == settings.PLATFORM_ADMIN_HOST or host in settings.TENANT_BYPASS_HOSTS
 
         if is_admin_host:

@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.views import View
 from django.views.generic import CreateView, DetailView, FormView, ListView, TemplateView, UpdateView
 
+from apps.calendar_sync.models import ExternalEventMapping
 from apps.clients.models import Client
 from apps.core.views import TenantRequiredMixin
 from apps.services.models import Service
@@ -35,12 +36,24 @@ class CalendarDayView(LoginRequiredMixin, TenantRequiredMixin, TemplateView):
         day = _parse_date(self.request.GET.get("date"))
         start = timezone.make_aware(datetime.combine(day, datetime.min.time()))
         end = start + timedelta(days=1)
+        origin_filter = self.request.GET.get("origin", "all")
 
-        appointments = list(
-            Appointment.objects.select_related("client", "professional", "service", "room")
-            .filter(start_at__gte=start, start_at__lt=end)
-            .exclude(status=Appointment.Status.CANCELLED)
-        )
+        appointments = []
+        if origin_filter in ("all", "syncora"):
+            appointments = list(
+                Appointment.objects.select_related("client", "professional", "service", "room")
+                .filter(start_at__gte=start, start_at__lt=end)
+                .exclude(status=Appointment.Status.CANCELLED)
+            )
+
+        external_events = []
+        if origin_filter in ("all", "google", "outlook", "apple"):
+            external_qs = ExternalEventMapping.objects.select_related(
+                "connection__professional"
+            ).filter(start_at__gte=start, start_at__lt=end)
+            if origin_filter != "all":
+                external_qs = external_qs.filter(connection__provider=origin_filter)
+            external_events = list(external_qs)
 
         columns = []
         for professional in Professional.objects.filter(status=Professional.Status.ACTIVE):
@@ -50,6 +63,9 @@ class CalendarDayView(LoginRequiredMixin, TenantRequiredMixin, TemplateView):
                     "appointments": [
                         a for a in appointments if a.professional_id == professional.id
                     ],
+                    "external_events": [
+                        e for e in external_events if e.connection.professional_id == professional.id
+                    ],
                 }
             )
 
@@ -57,6 +73,14 @@ class CalendarDayView(LoginRequiredMixin, TenantRequiredMixin, TemplateView):
         ctx["previous_day"] = day - timedelta(days=1)
         ctx["next_day"] = day + timedelta(days=1)
         ctx["columns"] = columns
+        ctx["origin_filter"] = origin_filter
+        ctx["origins"] = [
+            ("all", "Todos"),
+            ("syncora", "Somente Syncora"),
+            ("google", "Somente Google"),
+            ("outlook", "Somente Outlook"),
+            ("apple", "Somente Apple"),
+        ]
         return ctx
 
 

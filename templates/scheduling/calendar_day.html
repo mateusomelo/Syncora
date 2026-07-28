@@ -2,13 +2,22 @@
 {% block title %}Agenda · {{ day|date:"d/m/Y" }} · Syncora{% endblock %}
 {% block content %}
 <div class="max-w-6xl mx-auto py-10 px-4">
-  <div class="flex items-center justify-between mb-6">
+  <div class="flex items-center justify-between mb-4">
     <div class="flex items-center gap-3">
-      <a href="?date={{ previous_day|date:'Y-m-d' }}" class="text-gray-500 hover:text-gray-900">←</a>
+      <a href="?date={{ previous_day|date:'Y-m-d' }}&origin={{ origin_filter }}" class="text-gray-500 hover:text-gray-900">←</a>
       <h1 class="text-2xl font-semibold">{{ day|date:"d/m/Y" }}</h1>
-      <a href="?date={{ next_day|date:'Y-m-d' }}" class="text-gray-500 hover:text-gray-900">→</a>
+      <a href="?date={{ next_day|date:'Y-m-d' }}&origin={{ origin_filter }}" class="text-gray-500 hover:text-gray-900">→</a>
     </div>
     <a href="{% url 'scheduling:appointment_create' %}?date={{ day|date:'Y-m-d' }}T09:00" class="rounded-lg bg-gray-900 text-white px-4 py-2 text-sm font-medium hover:bg-gray-800">Novo agendamento</a>
+  </div>
+
+  <div class="flex items-center gap-2 mb-6 text-sm">
+    {% for key, label in origins %}
+    <a href="?date={{ day|date:'Y-m-d' }}&origin={{ key }}"
+       class="px-3 py-1 rounded-full border {% if origin_filter == key %}bg-gray-900 text-white border-gray-900{% else %}border-gray-300 text-gray-600 hover:bg-gray-50{% endif %}">
+      {{ label }}
+    </a>
+    {% endfor %}
   </div>
 
   <div class="grid gap-4" style="grid-template-columns: repeat({{ columns|length|default:1 }}, minmax(220px, 1fr));">
@@ -17,9 +26,12 @@
       <div class="bg-gray-50 px-4 py-3 font-medium text-sm border-b border-gray-200">{{ column.professional.name }}</div>
       <div class="divide-y divide-gray-100">
         {% for appointment in column.appointments %}
-        <a href="{% url 'scheduling:appointment_detail' appointment.pk %}" class="block px-4 py-3 hover:bg-gray-50">
+        <a href="{% url 'scheduling:appointment_detail' appointment.pk %}" class="block px-4 py-3 hover:bg-gray-50" title="Origem: Syncora">
           <div class="flex items-center justify-between">
-            <span class="text-sm font-medium">{{ appointment.start_at|date:"H:i" }} – {{ appointment.end_at|date:"H:i" }}</span>
+            <span class="text-sm font-medium">
+              <span class="inline-block w-2 h-2 rounded-full mr-1" style="background-color:#2563eb"></span>
+              {{ appointment.start_at|date:"H:i" }} – {{ appointment.end_at|date:"H:i" }}
+            </span>
             <span class="inline-block rounded-full px-2 py-0.5 text-xs
               {% if appointment.status == 'completed' %}bg-green-100 text-green-700
               {% elif appointment.status == 'confirmed' %}bg-blue-100 text-blue-700
@@ -30,9 +42,19 @@
           </div>
           <div class="text-sm text-gray-500">{{ appointment.client.name }} · {{ appointment.service.name }}</div>
         </a>
-        {% empty %}
-        <div class="px-4 py-6 text-center text-sm text-gray-400">Sem atendimentos</div>
         {% endfor %}
+        {% for event in column.external_events %}
+        <div class="block px-4 py-3" title="Origem: {{ event.connection.get_provider_display }}">
+          <span class="text-sm font-medium">
+            <span class="inline-block w-2 h-2 rounded-full mr-1" style="background-color:{{ event.source_color }}"></span>
+            {{ event.start_at|date:"H:i" }} – {{ event.end_at|date:"H:i" }}
+          </span>
+          <div class="text-sm text-gray-500">{{ event.title }} <span class="text-xs">({{ event.connection.get_provider_display }})</span></div>
+        </div>
+        {% endfor %}
+        {% if not column.appointments and not column.external_events %}
+        <div class="px-4 py-6 text-center text-sm text-gray-400">Sem atendimentos</div>
+        {% endif %}
       </div>
     </div>
     {% empty %}
