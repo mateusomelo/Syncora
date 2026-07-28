@@ -7,6 +7,7 @@ from django.views import View
 from django.views.generic import CreateView, DetailView, ListView, TemplateView, UpdateView
 
 from apps.audit.models import AuditLog, ImpersonationSession
+from apps.branding.models import BrandingSettings
 from apps.tenants.models import FeatureFlag, Tenant
 
 from .forms import TenantForm
@@ -55,6 +56,7 @@ class TenantCreateView(PlatformAdminRequiredMixin, CreateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
+        BrandingSettings.objects.get_or_create(tenant=self.object)
         _log(self.request, "tenant.create", self.object)
         return response
 

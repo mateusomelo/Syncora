@@ -1,15 +1,42 @@
 <!DOCTYPE html>
 {% load static %}
-<html lang="pt-br" class="h-full">
+<html lang="{{ LANGUAGE_CODE }}" class="h-full{% if branding.theme_mode == 'dark' %} dark{% endif %}" data-theme-mode="{{ branding.theme_mode }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Syncora{% endblock %}</title>
-    {# Placeholder temporário — substituído pelo pipeline Tailwind + design system na Fase 4. #}
+    {% if branding.favicon %}<link rel="icon" href="{{ branding.favicon.url }}">{% endif %}
+
+    <script>
+        // Tema "auto" segue o SO e reage a mudanças em tempo real; light/dark
+        // são forçados via classe (ver branding.theme_mode, injetado acima).
+        (function () {
+            var mode = document.documentElement.dataset.themeMode;
+            if (mode !== "auto") return;
+            var mq = window.matchMedia("(prefers-color-scheme: dark)");
+            var apply = function () { document.documentElement.classList.toggle("dark", mq.matches); };
+            apply();
+            mq.addEventListener("change", apply);
+        })();
+        tailwind = { config: { darkMode: "class" } };
+    </script>
+    {# Placeholder temporário — substituído pelo pipeline Tailwind CLI + design system na Fase 4b. #}
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --color-primary: {{ branding.color_primary }};
+            --color-secondary: {{ branding.color_secondary }};
+            --color-button: {{ branding.color_button }};
+            --color-link: {{ branding.color_link }};
+            --color-sidebar: {{ branding.color_sidebar }};
+            --color-topbar: {{ branding.color_topbar }};
+            --color-card: {{ branding.color_card }};
+            --color-icons: {{ branding.color_icons }};
+        }
+    </style>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="h-full bg-gray-50 text-gray-900 antialiased">
+<body class="h-full bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased">
     {% if messages %}
     <div class="max-w-md mx-auto mt-4 space-y-2">
         {% for message in messages %}
@@ -18,5 +45,8 @@
     </div>
     {% endif %}
     {% block content %}{% endblock %}
+    {% if branding.show_powered_by %}
+    <div class="py-4 text-center text-xs text-gray-400">Powered by Syncora</div>
+    {% endif %}
 </body>
 </html>
