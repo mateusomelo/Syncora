@@ -1,0 +1,9 @@
+Olá, {{ appointment.client.name }}!
+
+Seu agendamento foi confirmado:
+
+Serviço: {{ appointment.service.name }}
+Profissional: {{ appointment.professional.name }}
+Data: {{ appointment.start_at|date:"d/m/Y H:i" }}
+
+Até lá!

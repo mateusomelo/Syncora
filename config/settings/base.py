@@ -2,6 +2,7 @@ from datetime import timedelta
 from pathlib import Path
 
 import environ
+from celery.schedules import crontab
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -49,6 +50,7 @@ LOCAL_APPS = [
     "apps.finance",
     "apps.reports",
     "apps.dashboard",
+    "apps.notifications",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -199,6 +201,24 @@ CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_TIMEZONE = "America/Sao_Paulo"
+
+# Agendamento das tasks de notificação (exige um worker + beat rodando de
+# verdade — nenhum dos dois está ativo neste ambiente de desenvolvimento;
+# isso aqui é a configuração pronta para quando existir).
+CELERY_BEAT_SCHEDULE = {
+    "send-appointment-reminders": {
+        "task": "apps.notifications.tasks.send_appointment_reminders",
+        "schedule": crontab(minute=0),  # a cada hora
+    },
+    "send-birthday-greetings": {
+        "task": "apps.notifications.tasks.send_birthday_greetings",
+        "schedule": crontab(hour=8, minute=0),  # todo dia às 8h
+    },
+    "send-return-reminders": {
+        "task": "apps.notifications.tasks.send_return_reminders",
+        "schedule": crontab(hour=9, minute=0),  # todo dia às 9h
+    },
+}
 
 # --- E-mail -------------------------------------------------------------
 

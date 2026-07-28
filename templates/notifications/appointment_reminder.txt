@@ -1,0 +1,9 @@
+Olá, {{ appointment.client.name }}!
+
+Passando para lembrar do seu agendamento amanhã:
+
+Serviço: {{ appointment.service.name }}
+Profissional: {{ appointment.professional.name }}
+Data: {{ appointment.start_at|date:"d/m/Y H:i" }}
+
+Até lá!

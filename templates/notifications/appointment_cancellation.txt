@@ -1,0 +1,9 @@
+Olá, {{ appointment.client.name }}!
+
+Seu agendamento foi cancelado:
+
+Serviço: {{ appointment.service.name }}
+Data: {{ appointment.start_at|date:"d/m/Y H:i" }}
+{% if appointment.cancellation_reason %}Motivo: {{ appointment.cancellation_reason }}{% endif %}
+
+Se quiser remarcar, é só entrar em contato.

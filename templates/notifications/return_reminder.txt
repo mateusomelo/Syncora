@@ -1,0 +1,6 @@
+Olá, {{ client.name }}!
+
+Já faz um tempo desde seu último atendimento e sentimos sua falta.
+Que tal agendar um novo horário?
+
+Esperamos te ver em breve!

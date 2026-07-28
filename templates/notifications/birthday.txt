@@ -1,0 +1,5 @@
+Olá, {{ client.name }}!
+
+A equipe deseja um Feliz Aniversário! 🎉
+
+Esperamos te ver em breve.

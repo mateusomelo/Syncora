@@ -1,0 +1,9 @@
+Olá, {{ appointment.client.name }}!
+
+Seu agendamento foi remarcado:
+
+Serviço: {{ appointment.service.name }}
+De: {{ previous_start_at|date:"d/m/Y H:i" }}
+Para: {{ appointment.start_at|date:"d/m/Y H:i" }}
+
+Até lá!
