@@ -17,6 +17,7 @@ urlpatterns = [
     path("calendar-sync/", include("apps.calendar_sync.urls_callback")),
     path("app/barbearia/", include("apps.verticals.barber.urls")),
     path("app/odontologia/", include("apps.verticals.dentistry.urls")),
+    path("app/psicologia/", include("apps.verticals.psychology.urls")),
 ]
 
 if settings.DEBUG:

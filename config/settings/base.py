@@ -54,6 +54,7 @@ LOCAL_APPS = [
     "apps.calendar_sync",
     "apps.verticals.barber",
     "apps.verticals.dentistry",
+    "apps.verticals.psychology",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

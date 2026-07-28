@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Prontuário · {{ clinical_record.client.name }} · Syncora{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto py-10 px-4 space-y-6">
+  <div>
+    <h1 class="text-2xl font-semibold">{{ clinical_record.client.name }}</h1>
+    <p class="text-sm text-gray-500">Responsável: {{ clinical_record.responsible_professional.name }}</p>
+  </div>
+
+  <div class="bg-white border border-gray-200 rounded-xl p-6">
+    <h2 class="font-medium mb-4">Evoluções</h2>
+    <div class="space-y-3 mb-4">
+      {% for note in session_notes %}
+      <div class="border border-gray-100 rounded-lg p-3">
+        <p class="text-xs text-gray-500 mb-1">{{ note.created_at|date:"d/m/Y H:i" }} · {{ note.created_by }}</p>
+        <p class="text-sm whitespace-pre-line">{{ note.evolution_text }}</p>
+      </div>
+      {% empty %}
+      <p class="text-sm text-gray-400">Nenhuma evolução registrada ainda.</p>
+      {% endfor %}
+    </div>
+    <form method="post" action="{% url 'psychology:session_note_create' clinical_record.pk %}" class="space-y-2">
+      {% csrf_token %}
+      {{ note_form.evolution_text }}
+      <button class="rounded-lg bg-gray-900 text-white px-4 py-2 text-sm font-medium hover:bg-gray-800">Registrar evolução</button>
+    </form>
+  </div>
+
+  <div class="bg-white border border-gray-200 rounded-xl p-6">
+    <h2 class="font-medium mb-4">Acesso a este prontuário</h2>
+    <ul class="text-sm space-y-2 mb-4">
+      <li>{{ clinical_record.responsible_professional.name }} <span class="text-xs text-gray-400">(responsável)</span></li>
+      {% for user in clinical_record.authorized_users.all %}
+      <li class="flex items-center justify-between">
+        <span>{{ user.email }}</span>
+        <form method="post" action="{% url 'psychology:revoke_access' clinical_record.pk user.pk %}">
+          {% csrf_token %}
+          <button class="text-red-600 hover:underline text-xs">Revogar</button>
+        </form>
+      </li>
+      {% endfor %}
+    </ul>
+    {% if grantable_memberships %}
+    <form method="post" action="{% url 'psychology:grant_access' clinical_record.pk %}" class="flex gap-2">
+      {% csrf_token %}
+      <select name="user_id" class="rounded-lg border border-gray-300 px-3 py-2 text-sm flex-1">
+        {% for membership in grantable_memberships %}
+        <option value="{{ membership.user.pk }}">{{ membership.user.email }} ({{ membership.get_role_display }})</option>
+        {% endfor %}
+      </select>
+      <button class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50">Conceder acesso</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+<style type="text/tailwindcss">
+  textarea { @apply w-full rounded-lg border border-gray-300 px-3 py-2 text-sm; }
+</style>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Prontuários · Syncora{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto py-10 px-4">
+  <div class="flex items-center justify-between mb-2">
+    <h1 class="text-2xl font-semibold">Prontuários</h1>
+    <a href="{% url 'psychology:clinical_record_create' %}" class="rounded-lg bg-gray-900 text-white px-4 py-2 text-sm font-medium hover:bg-gray-800">Novo prontuário</a>
+  </div>
+  <p class="text-sm text-gray-500 mb-6">Só aparecem aqui os prontuários em que você é o profissional responsável ou recebeu acesso explícito — dado clínico sensível não fica visível por padrão, nem para administradores.</p>
+  <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-left text-gray-500">
+        <tr><th class="px-4 py-3">Cliente</th><th class="px-4 py-3">Responsável</th><th class="px-4 py-3"></th></tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for record in clinical_records %}
+        <tr>
+          <td class="px-4 py-3 font-medium">{{ record.client.name }}</td>
+          <td class="px-4 py-3 text-gray-500">{{ record.responsible_professional.name }}</td>
+          <td class="px-4 py-3 text-right"><a href="{% url 'psychology:clinical_record_detail' record.pk %}" class="text-gray-900 hover:underline">Abrir</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3" class="px-4 py-6 text-center text-gray-400">Nenhum prontuário acessível a você ainda.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
