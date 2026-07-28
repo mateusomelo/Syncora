@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Caixa · Syncora{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto py-10 px-4 space-y-6">
+  <h1 class="text-2xl font-semibold">Caixa</h1>
+
+  {% if not session %}
+  <div class="bg-white border border-gray-200 rounded-xl p-6">
+    <h2 class="font-medium mb-4">Nenhum caixa aberto</h2>
+    <form method="post" action="{% url 'barber:cash_register_open' %}" class="flex gap-3 items-end">
+      {% csrf_token %}
+      <div>
+        <label class="block text-sm font-medium mb-1">Valor de abertura</label>
+        <input type="number" step="0.01" name="opening_amount" class="rounded-lg border border-gray-300 px-3 py-2 text-sm" required>
+      </div>
+      <button class="rounded-lg bg-gray-900 text-white px-4 py-2 text-sm font-medium hover:bg-gray-800">Abrir caixa</button>
+    </form>
+  </div>
+  {% else %}
+  <div class="bg-white border border-gray-200 rounded-xl p-6">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <p class="text-sm text-gray-500">Aberto em {{ session.opened_at|date:"d/m/Y H:i" }} por {{ session.opened_by }}</p>
+        <p class="text-lg font-semibold">Esperado no caixa: R$ {{ expected_amount }}</p>
+      </div>
+      <form method="post" action="{% url 'barber:cash_register_close' session.pk %}" class="flex gap-2 items-end">
+        {% csrf_token %}
+        <input type="number" step="0.01" name="closing_amount" placeholder="Valor conferido" class="rounded-lg border border-gray-300 px-3 py-2 text-sm" required>
+        <button class="rounded-lg bg-red-600 text-white px-4 py-2 text-sm font-medium hover:bg-red-700">Fechar caixa</button>
+      </form>
+    </div>
+
+    <form method="post" action="{% url 'barber:cash_movement_create' session.pk %}" class="flex gap-2 items-end mb-4 border-t border-gray-100 pt-4">
+      {% csrf_token %}
+      <select name="type" class="rounded-lg border border-gray-300 px-2 py-2 text-sm">
+        <option value="in">Entrada</option>
+        <option value="out">Saída</option>
+      </select>
+      <input type="number" step="0.01" name="amount" placeholder="Valor" class="rounded-lg border border-gray-300 px-3 py-2 text-sm" required>
+      <input type="text" name="description" placeholder="Descrição" class="rounded-lg border border-gray-300 px-3 py-2 text-sm flex-1" required>
+      <button class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50">Lançar</button>
+    </form>
+
+    <div class="divide-y divide-gray-100">
+      {% for m in movements %}
+      <div class="py-2 text-sm flex justify-between">
+        <span>{{ m.get_type_display }} · {{ m.description }}</span>
+        <span class="font-medium {% if m.type == 'out' %}text-red-600{% else %}text-green-600{% endif %}">R$ {{ m.amount }}</span>
+      </div>
+      {% empty %}
+      <p class="py-4 text-center text-sm text-gray-400">Nenhum movimento ainda.</p>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

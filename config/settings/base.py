@@ -52,6 +52,7 @@ LOCAL_APPS = [
     "apps.dashboard",
     "apps.notifications",
     "apps.calendar_sync",
+    "apps.verticals.barber",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -93,6 +94,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "apps.branding.context_processors.branding",
+                "apps.verticals.context_processors.verticals",
             ],
         },
     },
