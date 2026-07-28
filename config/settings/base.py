@@ -97,6 +97,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "apps.branding.context_processors.branding",
                 "apps.verticals.context_processors.verticals",
+                "apps.core.context_processors.shell",
             ],
         },
     },

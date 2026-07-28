@@ -1,6 +1,7 @@
-{% extends "base.html" %}
+{% extends "layouts/app_shell.html" %}
+{% block page_title %}<span class="text-gray-300 dark:text-gray-700 mx-1">/</span><span class="text-gray-800 dark:text-gray-200 font-medium">Calendário</span>{% endblock %}
 {% block title %}Calendário · {{ professional.name }} · Syncora{% endblock %}
-{% block content %}
+{% block page %}
 <div class="max-w-2xl mx-auto py-10 px-4 space-y-6">
   <div>
     <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Calendário de {{ professional.name }}</h1>

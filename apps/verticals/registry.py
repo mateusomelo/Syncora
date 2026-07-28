@@ -13,25 +13,29 @@ from apps.tenants.models import FeatureFlag
 VERTICALS = {
     "barbearia": {
         "label": "Barbearia",
+        "icon": "scissors",
         "flag_key": FeatureFlag.Key.BARBEARIA,
         "menu_items": [
-            {"label": "Pacotes", "url_name": "barber:package_list"},
-            {"label": "Produtos", "url_name": "barber:product_list"},
-            {"label": "Caixa", "url_name": "barber:cash_register"},
+            {"label": "Pacotes", "url_name": "barber:package_list", "icon": "tag"},
+            {"label": "Produtos", "url_name": "barber:product_list", "icon": "tag"},
+            {"label": "Caixa", "url_name": "barber:cash_register", "icon": "banknotes"},
         ],
     },
     "odontologia": {
         "label": "Odontologia",
+        "icon": "tooth",
         "flag_key": FeatureFlag.Key.ODONTOGRAMA,
         "menu_items": [
-            {"label": "Orçamentos", "url_name": "dentistry:budget_list"},
+            {"label": "Pacientes", "url_name": "dentistry:patient_list", "icon": "users"},
+            {"label": "Orçamentos", "url_name": "dentistry:budget_list", "icon": "receipt"},
         ],
     },
     "psicologia": {
         "label": "Psicologia",
+        "icon": "chat-heart",
         "flag_key": FeatureFlag.Key.PSICOLOGIA,
         "menu_items": [
-            {"label": "Prontuários", "url_name": "psychology:clinical_record_list"},
+            {"label": "Prontuários", "url_name": "psychology:clinical_record_list", "icon": "clipboard"},
         ],
     },
 }
@@ -51,6 +55,17 @@ def get_active_menu_items(tenant):
     for key in get_active_verticals(tenant):
         items.extend(VERTICALS[key]["menu_items"])
     return items
+
+
+def get_active_verticals_detail(tenant):
+    """Como get_active_verticals, mas devolve a config completa de cada
+    vertical (label, ícone, itens de menu) — usado pela navegação lateral
+    para agrupar os itens sob o nome de cada módulo em vez de uma lista
+    plana."""
+    return [
+        {"key": key, **VERTICALS[key]}
+        for key in get_active_verticals(tenant)
+    ]
 
 
 class VerticalRequiredMixin:

@@ -20,9 +20,28 @@
     </script>
 
     <script>
-        // Tema "auto" segue o SO e reage a mudanças em tempo real; light/dark
-        // são forçados via classe (ver branding.theme_mode, injetado acima).
+        // Prioridade do tema: escolha manual do usuário (localStorage) > tema
+        // fixo da empresa (branding.theme_mode=light/dark) > "auto" seguindo o SO.
+        // Roda de forma síncrona no <head>, antes do primeiro paint, para não
+        // piscar o tema errado por uma fração de segundo.
+        window.syncoraSetTheme = function (mode) {
+            if (mode === "light" || mode === "dark") {
+                localStorage.setItem("syncora-theme-override", mode);
+                document.documentElement.classList.toggle("dark", mode === "dark");
+            } else {
+                localStorage.removeItem("syncora-theme-override");
+                var mq = window.matchMedia("(prefers-color-scheme: dark)");
+                var brandMode = document.documentElement.dataset.themeMode;
+                var wantsDark = brandMode === "dark" || (brandMode === "auto" && mq.matches);
+                document.documentElement.classList.toggle("dark", wantsDark);
+            }
+        };
         (function () {
+            var override = localStorage.getItem("syncora-theme-override");
+            if (override === "light" || override === "dark") {
+                document.documentElement.classList.toggle("dark", override === "dark");
+                return;
+            }
             var mode = document.documentElement.dataset.themeMode;
             if (mode !== "auto") return;
             var mq = window.matchMedia("(prefers-color-scheme: dark)");
@@ -30,11 +49,21 @@
             apply();
             mq.addEventListener("change", apply);
         })();
-        tailwind = { config: { darkMode: "class" } };
     </script>
     {# Placeholder temporário — substituído pelo pipeline Tailwind CLI + design system na Fase 4b. #}
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // cdn.tailwindcss.com (v3) expõe window.tailwind como um Proxy;
+        // reatribuir o objeto inteiro (`tailwind.config = {...}`) não gruda
+        // de forma confiável, mas mutar a propriedade diretamente
+        // (`tailwind.config.darkMode = ...`) dispara o trap de set do Proxy
+        // corretamente e força a recompilação. Sem isso, dark: sempre caía
+        // no padrão "media" (prefers-color-scheme do SO), ignorando o
+        // toggle manual e o branding.theme_mode fixo de cada empresa.
+        window.tailwind.config.darkMode = "class";
+    </script>
     <script src="https://unpkg.com/htmx.org@2.0.4" defer></script>
+    <script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"></script>
     <style>
         :root {
             --color-primary: {{ branding.color_primary }};
@@ -60,6 +89,7 @@
     class="h-full bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased"
     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
 >
+    {% block body %}
     {% if messages %}
     <div class="max-w-md mx-auto mt-4 space-y-2">
         {% for message in messages %}
@@ -71,5 +101,6 @@
     {% if branding.show_powered_by %}
     <div class="py-4 text-center text-xs text-gray-400">Powered by Syncora</div>
     {% endif %}
+    {% endblock %}
 </body>
 </html>

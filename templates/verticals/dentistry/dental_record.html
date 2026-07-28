@@ -1,6 +1,7 @@
-{% extends "base.html" %}
+{% extends "layouts/app_shell.html" %}
+{% block page_title %}<span class="text-gray-300 dark:text-gray-700 mx-1">/</span><span class="text-gray-800 dark:text-gray-200 font-medium">Prontuário</span>{% endblock %}
 {% block title %}Prontuário · {{ client.name }} · Syncora{% endblock %}
-{% block content %}
+{% block page %}
 <div class="max-w-3xl mx-auto py-10 px-4 space-y-6">
   <h1 class="text-2xl font-semibold">Prontuário odontológico · {{ client.name }}</h1>
 

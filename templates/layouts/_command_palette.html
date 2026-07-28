@@ -1,0 +1,61 @@
+{% load icons %}
+{{ search_destinations|json_script:"nav-search-data" }}
+<div x-show="searchOpen"
+     x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+     class="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4 bg-black/40 backdrop-blur-sm"
+     style="display: none;"
+     @keydown.escape.window="searchOpen = false">
+  <div x-data="syncoraSearch()" x-init="init()" @click.outside="searchOpen = false"
+       x-show="searchOpen" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 scale-95 -translate-y-2" x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+       class="w-full max-w-lg rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-2xl overflow-hidden">
+    <div class="flex items-center gap-3 px-4 border-b border-gray-100 dark:border-gray-800">
+      {% icon "search" "w-4 h-4 text-gray-400 shrink-0" %}
+      <input x-ref="input" x-model="query" @keydown.enter="go()" @keydown.arrow-down.prevent="move(1)" @keydown.arrow-up.prevent="move(-1)"
+             type="text" placeholder="Ir para…" autocomplete="off"
+             class="w-full py-3.5 bg-transparent text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none">
+      <kbd class="text-[10px] font-sans text-gray-400 border border-gray-300 dark:border-gray-700 rounded px-1.5 py-0.5">Esc</kbd>
+    </div>
+    <ul class="max-h-80 overflow-y-auto p-1.5">
+      <template x-for="(item, i) in filtered()" :key="item.href">
+        <li>
+          <a :href="item.href" @mouseenter="active = i"
+             :class="active === i ? 'bg-gray-100 dark:bg-gray-800' : ''"
+             class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors">
+            <span class="text-gray-800 dark:text-gray-100" x-text="item.label"></span>
+            <span class="text-xs text-gray-400" x-text="item.section"></span>
+          </a>
+        </li>
+      </template>
+      <li x-show="filtered().length === 0" class="px-3 py-8 text-center text-sm text-gray-400">Nada encontrado.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+  function syncoraSearch() {
+    return {
+      query: "",
+      active: 0,
+      all: [],
+      init() {
+        this.all = JSON.parse(document.getElementById("nav-search-data").textContent);
+        this.$watch("searchOpen", (open) => { if (open) { this.query = ""; this.active = 0; this.$nextTick(() => this.$refs.input.focus()); } });
+      },
+      filtered() {
+        const q = this.query.trim().toLowerCase();
+        if (!q) return this.all;
+        return this.all.filter((item) => item.label.toLowerCase().includes(q) || item.section.toLowerCase().includes(q));
+      },
+      move(delta) {
+        const items = this.filtered();
+        if (!items.length) return;
+        this.active = (this.active + delta + items.length) % items.length;
+      },
+      go() {
+        const items = this.filtered();
+        if (items[this.active]) window.location.href = items[this.active].href;
+      },
+    };
+  }
+</script>

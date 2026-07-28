@@ -1,6 +1,7 @@
-{% extends "base.html" %}
+{% extends "layouts/app_shell.html" %}
+{% block page_title %}<span class="text-gray-300 dark:text-gray-700 mx-1">/</span><span class="text-gray-800 dark:text-gray-200 font-medium">Agenda</span>{% endblock %}
 {% block title %}Agenda · {{ day|date:"d/m/Y" }} · Syncora{% endblock %}
-{% block content %}
+{% block page %}
 <div class="max-w-6xl mx-auto py-10 px-4">
   <div class="flex items-center justify-between mb-4">
     <div class="flex items-center gap-3">

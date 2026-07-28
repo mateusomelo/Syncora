@@ -1,6 +1,7 @@
-{% extends "base.html" %}
+{% extends "layouts/app_shell.html" %}
+{% block page_title %}<span class="text-gray-300 dark:text-gray-700 mx-1">/</span><span class="text-gray-800 dark:text-gray-200 font-medium">Relatório de agendamentos</span>{% endblock %}
 {% block title %}Relatório de Agendamentos · Syncora{% endblock %}
-{% block content %}
+{% block page %}
 <div class="max-w-4xl mx-auto py-10 px-4">
   <h1 class="text-2xl font-semibold mb-2">Agendamentos</h1>
   <p class="text-sm text-gray-500 mb-4">{{ appointments|length }} atendimento(s) · {{ cancelled_count }} cancelamento(s)</p>
