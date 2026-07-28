@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Prontuário · {{ client.name }} · Syncora{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto py-10 px-4 space-y-6">
+  <h1 class="text-2xl font-semibold">Prontuário odontológico · {{ client.name }}</h1>
+
+  <div class="bg-white border border-gray-200 rounded-xl p-6">
+    <div class="flex items-center justify-between mb-2">
+      <h2 class="font-medium">Anamnese</h2>
+      <a href="{% url 'dentistry:anamnesis_edit' client.pk %}" class="text-sm text-gray-900 hover:underline">{% if anamnesis %}Editar{% else %}Preencher{% endif %}</a>
+    </div>
+    {% if anamnesis %}
+    <dl class="text-sm space-y-1">
+      <div><dt class="inline text-gray-500">Alergias:</dt> <dd class="inline">{{ anamnesis.allergies|default:"—" }}</dd></div>
+      <div><dt class="inline text-gray-500">Medicamentos:</dt> <dd class="inline">{{ anamnesis.medications|default:"—" }}</dd></div>
+      <div><dt class="inline text-gray-500">Condições médicas:</dt> <dd class="inline">{{ anamnesis.medical_conditions|default:"—" }}</dd></div>
+    </dl>
+    {% else %}
+    <p class="text-sm text-gray-400">Nenhuma anamnese registrada ainda.</p>
+    {% endif %}
+  </div>
+
+  <div class="bg-white border border-gray-200 rounded-xl p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-medium">Odontograma</h2>
+      {% if not odontogram %}
+      <form method="post" action="{% url 'dentistry:odontogram_create' client.pk %}">
+        {% csrf_token %}
+        <button class="text-sm text-gray-900 hover:underline">Criar odontograma</button>
+      </form>
+      {% endif %}
+    </div>
+    {% if odontogram %}
+    <form method="post" action="{% url 'dentistry:odontogram_update' client.pk %}">
+      {% csrf_token %}
+      <div class="grid grid-cols-4 gap-2 mb-4">
+        {% for tooth in teeth %}
+        <div class="border border-gray-200 rounded-lg p-2 text-xs">
+          <input type="hidden" name="form-{{ forloop.counter0 }}-id" value="{{ tooth.pk }}">
+          <p class="font-medium mb-1">Dente {{ tooth.tooth_number }}</p>
+          <select name="form-{{ forloop.counter0 }}-condition" class="w-full text-xs rounded border border-gray-300">
+            {% for value, label in tooth.Condition.choices %}
+            <option value="{{ value }}" {% if tooth.condition == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endfor %}
+      </div>
+      <input type="hidden" name="form-TOTAL_FORMS" value="{{ teeth|length }}">
+      <input type="hidden" name="form-INITIAL_FORMS" value="{{ teeth|length }}">
+      <input type="hidden" name="form-MIN_NUM_FORMS" value="0">
+      <input type="hidden" name="form-MAX_NUM_FORMS" value="1000">
+      <button class="rounded-lg bg-gray-900 text-white px-4 py-2 text-sm font-medium hover:bg-gray-800">Salvar odontograma</button>
+    </form>
+    {% else %}
+    <p class="text-sm text-gray-400">Nenhum odontograma criado ainda.</p>
+    {% endif %}
+  </div>
+
+  <div class="bg-white border border-gray-200 rounded-xl p-6">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-medium">Tratamentos</h2>
+      <a href="{% url 'dentistry:treatment_create' client.pk %}" class="text-sm text-gray-900 hover:underline">+ Novo</a>
+    </div>
+    <ul class="text-sm space-y-1">
+      {% for t in treatments %}
+      <li>{{ t.description }}{% if t.tooth_number %} (dente {{ t.tooth_number }}){% endif %} — {{ t.get_status_display }} — R$ {{ t.cost }}</li>
+      {% empty %}<li class="text-gray-400">Nenhum tratamento registrado.</li>{% endfor %}
+    </ul>
+  </div>
+
+  <div class="bg-white border border-gray-200 rounded-xl p-6">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-medium">Receitas</h2>
+      <a href="{% url 'dentistry:prescription_create' client.pk %}" class="text-sm text-gray-900 hover:underline">+ Nova</a>
+    </div>
+    <ul class="text-sm space-y-1">
+      {% for p in prescriptions %}<li>{{ p.issued_at|date:"d/m/Y" }} — {{ p.content|truncatechars:80 }}</li>
+      {% empty %}<li class="text-gray-400">Nenhuma receita emitida.</li>{% endfor %}
+    </ul>
+  </div>
+
+  <div class="bg-white border border-gray-200 rounded-xl p-6">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-medium">Atestados</h2>
+      <a href="{% url 'dentistry:certificate_create' client.pk %}" class="text-sm text-gray-900 hover:underline">+ Novo</a>
+    </div>
+    <ul class="text-sm space-y-1">
+      {% for cert in certificates %}<li>{{ cert.issued_at|date:"d/m/Y" }} — {{ cert.reason }} ({{ cert.days_off }} dia(s))</li>
+      {% empty %}<li class="text-gray-400">Nenhum atestado emitido.</li>{% endfor %}
+    </ul>
+  </div>
+
+  <div class="bg-white border border-gray-200 rounded-xl p-6">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-medium">Orçamentos</h2>
+      <a href="{% url 'dentistry:budget_create' client.pk %}" class="text-sm text-gray-900 hover:underline">+ Novo</a>
+    </div>
+    {% for b in budgets %}
+    <div class="border border-gray-100 rounded-lg p-3 mb-2">
+      <p class="text-sm font-medium">{{ b.description }} — R$ {{ b.total }} ({{ b.get_status_display }})</p>
+      <ul class="text-xs text-gray-500 mt-1 space-y-1">
+        {% for inst in b.installments.all %}
+        <li class="flex items-center justify-between">
+          <span>Parcela {{ inst.number }} — R$ {{ inst.amount }} — vence {{ inst.due_date|date:"d/m/Y" }}{% if inst.is_paid %} — paga{% endif %}</span>
+          {% if not inst.is_paid %}
+          <form method="post" action="{% url 'dentistry:installment_mark_paid' client.pk inst.pk %}">
+            {% csrf_token %}
+            <button class="text-gray-900 hover:underline">Marcar paga</button>
+          </form>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% empty %}
+    <p class="text-sm text-gray-400">Nenhum orçamento cadastrado.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

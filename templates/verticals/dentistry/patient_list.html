@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Pacientes · Odontologia · Syncora{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto py-10 px-4">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-semibold">Pacientes</h1>
+    <a href="{% url 'dentistry:budget_list' %}" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50">Orçamentos</a>
+  </div>
+  <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-left text-gray-500">
+        <tr><th class="px-4 py-3">Nome</th><th class="px-4 py-3">Telefone</th><th class="px-4 py-3"></th></tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for client in clients %}
+        <tr>
+          <td class="px-4 py-3 font-medium">{{ client.name }}</td>
+          <td class="px-4 py-3 text-gray-500">{{ client.phone|default:"—" }}</td>
+          <td class="px-4 py-3 text-right"><a href="{% url 'dentistry:dental_record' client.pk %}" class="text-gray-900 hover:underline">Prontuário</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3" class="px-4 py-6 text-center text-gray-400">Nenhum paciente cadastrado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
