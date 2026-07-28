@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Serviços · Syncora{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto py-10 px-4">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-semibold">Serviços</h1>
+    <a href="{% url 'services:create' %}" class="rounded-lg bg-gray-900 text-white px-4 py-2 text-sm font-medium hover:bg-gray-800">Novo serviço</a>
+  </div>
+  <input
+    type="search" name="q" placeholder="Buscar por nome ou categoria..."
+    class="w-full mb-4 rounded-lg border border-gray-300 px-3 py-2 text-sm"
+    hx-get="{% url 'services:list' %}"
+    hx-trigger="keyup changed delay:300ms, search"
+    hx-target="#service-table-wrapper"
+    hx-swap="outerHTML"
+  >
+  {% include "services/_service_table.html" %}
+</div>
+{% endblock %}

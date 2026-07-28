@@ -67,6 +67,15 @@ class TenantManager(models.Manager):
     um shell solto), devolve queryset vazio de propósito: nunca vazar dado
     "por acidente" fora de uma requisição resolvida por tenant. Use
     `all_objects` deliberadamente para acesso cross-tenant (Super Admin).
+
+    Cuidado ao referenciar um TenantModel via FK/M2M em ModelForm ou DRF
+    ModelSerializer: o Django monta o queryset desses campos uma única vez,
+    na definição da classe (import do módulo) — momento em que não existe
+    tenant algum no contextvar, então o campo fica com um queryset vazio
+    "congelado" para sempre. Sempre reatribua `self.fields["campo"].queryset`
+    dentro de `__init__` (form) ou `get_fields()`/`__init__` (serializer),
+    para que seja reavaliado a cada instanciação, já dentro de uma request
+    real. Ver apps/services/forms.py:ServiceForm para o padrão.
     """
 
     def get_queryset(self):

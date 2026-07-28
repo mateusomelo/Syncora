@@ -1,0 +1,38 @@
+<div id="service-table-wrapper">
+<div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 text-left text-gray-500">
+      <tr>
+        <th class="px-4 py-3">Nome</th>
+        <th class="px-4 py-3">Categoria</th>
+        <th class="px-4 py-3">Preço</th>
+        <th class="px-4 py-3">Duração</th>
+        <th class="px-4 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for service in services %}
+      <tr>
+        <td class="px-4 py-3 font-medium">
+          <span class="inline-block w-2 h-2 rounded-full mr-2" style="background-color: {{ service.color }}"></span>
+          <a href="{% url 'services:detail' service.pk %}" class="hover:underline">{{ service.name }}</a>
+        </td>
+        <td class="px-4 py-3 text-gray-500">{{ service.category|default:"—" }}</td>
+        <td class="px-4 py-3 text-gray-500">R$ {{ service.price }}</td>
+        <td class="px-4 py-3 text-gray-500">{{ service.duration_minutes }} min</td>
+        <td class="px-4 py-3 text-right space-x-3">
+          <a href="{% url 'services:update' service.pk %}" class="text-gray-900 hover:underline">Editar</a>
+          <button
+            hx-post="{% url 'services:delete' service.pk %}"
+            hx-target="closest tr" hx-swap="outerHTML"
+            hx-confirm="Remover {{ service.name }}?"
+            class="text-red-600 hover:underline">Remover</button>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5" class="px-4 py-6 text-center text-gray-400">Nenhum serviço cadastrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div>

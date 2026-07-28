@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ professional.name }} · Syncora{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto py-10 px-4 space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold">{{ professional.name }}</h1>
+      <p class="text-sm text-gray-500">{{ professional.specialties|default:"—" }} · Comissão {{ professional.commission_rate }}%</p>
+    </div>
+    <a href="{% url 'staff:update' professional.pk %}" class="text-sm font-medium text-gray-900 hover:underline">Editar</a>
+  </div>
+
+  <div class="bg-white border border-gray-200 rounded-xl p-6">
+    <h2 class="font-medium mb-4">Horários de trabalho</h2>
+    <ul class="space-y-1 text-sm">
+      {% for wh in professional.working_hours.all %}
+      <li>{{ wh.get_weekday_display }}: {{ wh.start_time }} – {{ wh.end_time }}{% if wh.break_start %} (intervalo {{ wh.break_start }}–{{ wh.break_end }}){% endif %}</li>
+      {% empty %}
+      <li class="text-gray-400">Nenhum horário cadastrado ainda (gerenciável pelo /admin/ por enquanto).</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}
