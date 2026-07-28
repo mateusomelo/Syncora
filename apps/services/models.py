@@ -4,7 +4,7 @@ from apps.core.models import TenantModel
 
 
 class ServiceCategory(TenantModel):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, verbose_name="Nome")
 
     class Meta:
         ordering = ["name"]
@@ -21,16 +21,17 @@ class Service(TenantModel):
         null=True,
         blank=True,
         related_name="services",
+        verbose_name="Categoria",
     )
-    name = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    duration_minutes = models.PositiveIntegerField()
-    color = models.CharField(max_length=7, default="#2563eb")
+    name = models.CharField(max_length=200, verbose_name="Nome")
+    description = models.TextField(blank=True, verbose_name="Descrição")
+    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Preço")
+    duration_minutes = models.PositiveIntegerField(verbose_name="Duração (minutos)")
+    color = models.CharField(max_length=7, default="#2563eb", verbose_name="Cor")
     allowed_professionals = models.ManyToManyField(
-        "staff.Professional", blank=True, related_name="services"
+        "staff.Professional", blank=True, related_name="services", verbose_name="Profissionais habilitados"
     )
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, verbose_name="Ativo")
 
     class Meta:
         ordering = ["name"]

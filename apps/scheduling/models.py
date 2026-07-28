@@ -4,8 +4,8 @@ from apps.core.models import TenantModel
 
 
 class Unit(TenantModel):
-    name = models.CharField(max_length=200)
-    address = models.CharField(max_length=255, blank=True)
+    name = models.CharField(max_length=200, verbose_name="Nome")
+    address = models.CharField(max_length=255, blank=True, verbose_name="Endereço")
 
     class Meta:
         ordering = ["name"]
@@ -15,8 +15,8 @@ class Unit(TenantModel):
 
 
 class Room(TenantModel):
-    unit = models.ForeignKey(Unit, on_delete=models.CASCADE, related_name="rooms")
-    name = models.CharField(max_length=100)
+    unit = models.ForeignKey(Unit, on_delete=models.CASCADE, related_name="rooms", verbose_name="Unidade")
+    name = models.CharField(max_length=100, verbose_name="Nome")
 
     class Meta:
         ordering = ["unit", "name"]
@@ -46,14 +46,15 @@ class Block(TenantModel):
         null=True,
         blank=True,
         related_name="blocks",
+        verbose_name="Profissional",
     )
     room = models.ForeignKey(
-        Room, on_delete=models.CASCADE, null=True, blank=True, related_name="blocks"
+        Room, on_delete=models.CASCADE, null=True, blank=True, related_name="blocks", verbose_name="Sala"
     )
-    type = models.CharField(max_length=30, choices=Type.choices)
-    title = models.CharField(max_length=200, blank=True)
-    start_at = models.DateTimeField()
-    end_at = models.DateTimeField()
+    type = models.CharField(max_length=30, choices=Type.choices, verbose_name="Tipo")
+    title = models.CharField(max_length=200, blank=True, verbose_name="Título")
+    start_at = models.DateTimeField(verbose_name="Início")
+    end_at = models.DateTimeField(verbose_name="Fim")
 
     class Meta:
         ordering = ["start_at"]
@@ -78,23 +79,37 @@ class Appointment(TenantModel):
         APPLE = "apple", "Apple Calendar"
 
     client = models.ForeignKey(
-        "clients.Client", on_delete=models.PROTECT, related_name="appointments"
+        "clients.Client", on_delete=models.PROTECT, related_name="appointments", verbose_name="Cliente"
     )
     professional = models.ForeignKey(
-        "staff.Professional", on_delete=models.PROTECT, related_name="appointments"
+        "staff.Professional",
+        on_delete=models.PROTECT,
+        related_name="appointments",
+        verbose_name="Profissional",
     )
     service = models.ForeignKey(
-        "services.Service", on_delete=models.PROTECT, related_name="appointments"
+        "services.Service", on_delete=models.PROTECT, related_name="appointments", verbose_name="Serviço"
     )
     room = models.ForeignKey(
-        Room, on_delete=models.SET_NULL, null=True, blank=True, related_name="appointments"
+        Room,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="appointments",
+        verbose_name="Sala",
     )
-    start_at = models.DateTimeField()
-    end_at = models.DateTimeField()
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.SCHEDULED)
-    origin = models.CharField(max_length=20, choices=Origin.choices, default=Origin.SYNCORA)
-    cancellation_reason = models.CharField(max_length=255, blank=True)
-    notes = models.TextField(blank=True)
+    start_at = models.DateTimeField(verbose_name="Início")
+    end_at = models.DateTimeField(verbose_name="Fim")
+    status = models.CharField(
+        max_length=20, choices=Status.choices, default=Status.SCHEDULED, verbose_name="Status"
+    )
+    origin = models.CharField(
+        max_length=20, choices=Origin.choices, default=Origin.SYNCORA, verbose_name="Origem"
+    )
+    cancellation_reason = models.CharField(
+        max_length=255, blank=True, verbose_name="Motivo do cancelamento"
+    )
+    notes = models.TextField(blank=True, verbose_name="Observações")
 
     class Meta:
         ordering = ["start_at"]
@@ -114,10 +129,13 @@ class WaitList(TenantModel):
         CANCELLED = "cancelled", "Cancelado"
 
     client = models.ForeignKey(
-        "clients.Client", on_delete=models.CASCADE, related_name="waitlist_entries"
+        "clients.Client", on_delete=models.CASCADE, related_name="waitlist_entries", verbose_name="Cliente"
     )
     service = models.ForeignKey(
-        "services.Service", on_delete=models.CASCADE, related_name="waitlist_entries"
+        "services.Service",
+        on_delete=models.CASCADE,
+        related_name="waitlist_entries",
+        verbose_name="Serviço",
     )
     professional = models.ForeignKey(
         "staff.Professional",
@@ -125,10 +143,13 @@ class WaitList(TenantModel):
         null=True,
         blank=True,
         related_name="waitlist_entries",
+        verbose_name="Profissional",
     )
-    desired_date = models.DateField()
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.WAITING)
-    priority = models.PositiveIntegerField(default=0)
+    desired_date = models.DateField(verbose_name="Data desejada")
+    status = models.CharField(
+        max_length=20, choices=Status.choices, default=Status.WAITING, verbose_name="Status"
+    )
+    priority = models.PositiveIntegerField(default=0, verbose_name="Prioridade")
 
     class Meta:
         ordering = ["-priority", "created_at"]

@@ -14,12 +14,17 @@ class Professional(TenantModel):
         null=True,
         blank=True,
         related_name="professional_profiles",
+        verbose_name="Usuário",
     )
-    name = models.CharField(max_length=200)
-    specialties = models.CharField(max_length=255, blank=True)
-    commission_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-    photo = models.ImageField(upload_to="staff/photos/", blank=True, null=True)
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.ACTIVE)
+    name = models.CharField(max_length=200, verbose_name="Nome")
+    specialties = models.CharField(max_length=255, blank=True, verbose_name="Especialidades")
+    commission_rate = models.DecimalField(
+        max_digits=5, decimal_places=2, default=0, verbose_name="Comissão (%)"
+    )
+    photo = models.ImageField(upload_to="staff/photos/", blank=True, null=True, verbose_name="Foto")
+    status = models.CharField(
+        max_length=20, choices=Status.choices, default=Status.ACTIVE, verbose_name="Status"
+    )
 
     class Meta:
         ordering = ["name"]
@@ -39,13 +44,13 @@ class WorkingHours(TenantModel):
         SUNDAY = 6, "Domingo"
 
     professional = models.ForeignKey(
-        Professional, on_delete=models.CASCADE, related_name="working_hours"
+        Professional, on_delete=models.CASCADE, related_name="working_hours", verbose_name="Profissional"
     )
-    weekday = models.IntegerField(choices=Weekday.choices)
-    start_time = models.TimeField()
-    end_time = models.TimeField()
-    break_start = models.TimeField(null=True, blank=True)
-    break_end = models.TimeField(null=True, blank=True)
+    weekday = models.IntegerField(choices=Weekday.choices, verbose_name="Dia da semana")
+    start_time = models.TimeField(verbose_name="Início")
+    end_time = models.TimeField(verbose_name="Fim")
+    break_start = models.TimeField(null=True, blank=True, verbose_name="Início do intervalo")
+    break_end = models.TimeField(null=True, blank=True, verbose_name="Fim do intervalo")
 
     class Meta:
         ordering = ["weekday", "start_time"]
@@ -57,11 +62,11 @@ class WorkingHours(TenantModel):
 
 class Vacation(TenantModel):
     professional = models.ForeignKey(
-        Professional, on_delete=models.CASCADE, related_name="vacations"
+        Professional, on_delete=models.CASCADE, related_name="vacations", verbose_name="Profissional"
     )
-    start_date = models.DateField()
-    end_date = models.DateField()
-    reason = models.CharField(max_length=255, blank=True)
+    start_date = models.DateField(verbose_name="Início")
+    end_date = models.DateField(verbose_name="Fim")
+    reason = models.CharField(max_length=255, blank=True, verbose_name="Motivo")
 
     class Meta:
         ordering = ["-start_date"]

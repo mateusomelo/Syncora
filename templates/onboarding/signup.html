@@ -10,7 +10,7 @@
       {{ form.non_field_errors }}
       {% for field in form %}
       <div>
-        <label class="block text-sm font-medium mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        <label class="block text-sm font-medium mb-1 text-gray-700" for="{{ field.id_for_label }}">{{ field.label }}</label>
         {{ field }}
         {% if field.help_text %}<p class="text-xs text-gray-400 mt-1">{{ field.help_text }}</p>{% endif %}
         {% if field.errors %}<p class="text-sm text-red-600 mt-1">{{ field.errors|join:", " }}</p>{% endif %}
@@ -21,6 +21,6 @@
   </div>
 </div>
 <style type="text/tailwindcss">
-  input, select { @apply w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900; }
+  input, select { @apply w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-gray-900; }
 </style>
 {% endblock %}

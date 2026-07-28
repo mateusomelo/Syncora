@@ -46,6 +46,13 @@
             --color-card: {{ branding.color_card }};
             --color-icons: {{ branding.color_icons }};
         }
+        /* Muitas telas usam cartões "bg-white" fixos (sem variante dark:) que
+           não previam tema escuro — sem isso, o texto herda a cor clara do
+           body (dark:text-gray-100) e fica invisível sobre fundo branco.
+           :where() tem especificidade zero de propósito: qualquer elemento
+           com sua própria classe de cor (ex.: um botão "text-white" dentro
+           do cartão) continua vencendo essa regra normalmente. */
+        :where(.bg-white) { color: #111827; }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
