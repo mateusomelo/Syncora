@@ -30,6 +30,7 @@ urlpatterns = [
     path("app/odontologia/", include("apps.verticals.dentistry.urls")),
     path("app/psicologia/", include("apps.verticals.psychology.urls")),
     path("api/", include("apps.api.urls")),
+    path("", include("apps.onboarding.urls")),
 ]
 
 if settings.DEBUG:

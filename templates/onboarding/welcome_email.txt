@@ -1,0 +1,9 @@
+Olá!
+
+Sua empresa "{{ tenant.name }}" foi criada no Syncora com sucesso.
+
+Acesse: https://{{ tenant.subdomain }}.syncora.app/auth/login/
+
+Qualquer dúvida, é só responder este e-mail.
+
+Bem-vindo(a)!

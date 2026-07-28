@@ -144,6 +144,9 @@ AUTH_PASSWORD_VALIDATORS = [
 PLATFORM_ADMIN_HOST = env("PLATFORM_ADMIN_HOST", default="admin.syncora.local")
 TENANT_BASE_DOMAIN = env("TENANT_BASE_DOMAIN", default="syncora.local")
 TENANT_BYPASS_HOSTS = env.list("TENANT_BYPASS_HOSTS", default=["localhost", "127.0.0.1"])
+# Site público de marketing/cadastro self-service (apps/onboarding) — em
+# produção, o domínio apex (ex.: "syncora.app", sem subdomínio nenhum).
+MARKETING_HOST = env("MARKETING_HOST", default="syncora.app")
 
 # Chave de criptografia (Fernet) para tokens OAuth de terceiros em repouso —
 # ver apps/core/fields.py:EncryptedTextField. Não é a mesma coisa que
@@ -299,6 +302,9 @@ LOGGING = {
             "format": "[{asctime}] {levelname} {name}: {message}",
             "style": "{",
         },
+        # Usado em produção (ver config/settings/production.py) — uma linha
+        # JSON por evento, para ferramentas de agregação de log.
+        "json": {"()": "apps.core.logging_utils.JSONFormatter"},
     },
     "handlers": {
         "console": {
@@ -317,6 +323,16 @@ LOGGING = {
             "propagate": False,
         },
         "syncora.audit": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "syncora.notifications": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "syncora.calendar_sync": {
             "handlers": ["console"],
             "level": "INFO",
             "propagate": False,

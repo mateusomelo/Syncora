@@ -22,3 +22,24 @@ EMAIL_PORT = env.int("EMAIL_PORT", default=587)  # noqa: F405
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)  # noqa: F405
 EMAIL_HOST_USER = env("EMAIL_HOST_USER")  # noqa: F405
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")  # noqa: F405
+
+# Log estruturado (uma linha JSON por evento) — ver apps/core/logging_utils.py.
+LOGGING["handlers"]["console"]["formatter"] = "json"  # noqa: F405
+
+# Sentry é opcional de propósito: sem SENTRY_DSN configurado (nenhuma conta
+# real criada ainda), o app roda normalmente sem monitoramento de erros.
+# Quando o DSN existir, é só definir a env var — nenhum código muda.
+SENTRY_DSN = env("SENTRY_DSN", default="")
+if SENTRY_DSN:
+    import sentry_sdk
+    from sentry_sdk.integrations.celery import CeleryIntegration
+    from sentry_sdk.integrations.django import DjangoIntegration
+    from sentry_sdk.integrations.redis import RedisIntegration
+
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration(), CeleryIntegration(), RedisIntegration()],
+        traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE", default=0.1),  # noqa: F405
+        send_default_pii=False,
+        environment=env("ENVIRONMENT", default="production"),  # noqa: F405
+    )
