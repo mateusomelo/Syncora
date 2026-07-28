@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="pt-br" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Syncora{% endblock %}</title>
+    {# Placeholder temporário — substituído pelo pipeline Tailwind + design system na Fase 4. #}
+    <script src="https://cdn.tailwindcss.com"></script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="h-full bg-gray-50 text-gray-900 antialiased">
+    {% if messages %}
+    <div class="max-w-md mx-auto mt-4 space-y-2">
+        {% for message in messages %}
+        <div class="rounded-lg px-4 py-2 text-sm bg-gray-900 text-white">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+</body>
+</html>

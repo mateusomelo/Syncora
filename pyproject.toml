@@ -1,0 +1,10 @@
+[project]
+name = "syncora"
+version = "0.1.0"
+description = "SaaS multi-tenant de agendamento e gestão empresarial."
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+python_files = ["test_*.py", "*_test.py", "tests.py"]
+testpaths = ["apps"]
