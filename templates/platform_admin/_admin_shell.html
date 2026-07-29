@@ -9,10 +9,25 @@
         <span class="font-semibold text-[15px] text-gray-900" style="font-family:'Sora',sans-serif;">Syncora</span>
         <span class="text-xs font-medium text-gray-400 bg-gray-100 rounded-full px-2 py-0.5 ml-1">Super Admin</span>
       </a>
-      <div class="flex items-center gap-4">
-        <span class="w-8 h-8 rounded-full text-white text-xs font-semibold flex items-center justify-center" style="background:#3b5bff;">
+      <div class="flex items-center gap-4" x-data="{ open: false }" @click.outside="open = false">
+        <button @click="open = !open" class="w-8 h-8 rounded-full text-white text-xs font-semibold flex items-center justify-center" style="background:#3b5bff;">
           {{ request.user.email|slice:":1"|upper }}
-        </span>
+        </button>
+        <div x-show="open" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+             x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
+             class="absolute right-6 top-14 w-64 rounded-xl bg-white border border-gray-200 shadow-lg overflow-hidden" style="display: none;">
+          <div class="px-4 py-3 border-b border-gray-100">
+            <p class="text-sm font-medium text-gray-900 truncate">{{ request.user.get_full_name|default:request.user.email }}</p>
+            <p class="text-xs text-gray-400 truncate">{{ request.user.email }}</p>
+          </div>
+          <form method="post" action="{% url 'authentication:logout' %}" class="p-1.5">
+            {% csrf_token %}
+            <button type="submit" class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+              {% icon "logout" "w-4 h-4" %}
+              Sair
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   </header>
