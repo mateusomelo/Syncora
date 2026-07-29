@@ -1,13 +1,21 @@
 from django.http import Http404
+from django.shortcuts import redirect
 
 
 class TenantRequiredMixin:
     """Recusa acesso quando não há tenant resolvido na request (ex.: acessando
     uma tela de negócio pelo domínio administrativo sem impersonação ativa).
+
+    Exceção: um Super Admin autenticado, mas sem impersonação ativa, é
+    redirecionado pro Painel do Super Admin em vez de tomar 404 — ele
+    literalmente não tem nenhuma empresa "dele" pra ver aqui, mas tem um
+    lugar certo pra ir; só usuários sem esse vínculo tomam o 404 de fato.
     """
 
     def dispatch(self, request, *args, **kwargs):
         if getattr(request, "tenant", None) is None:
+            if request.user.is_authenticated and request.user.is_platform_admin:
+                return redirect("platform_admin:tenant_list")
             raise Http404("Esta página só existe no contexto de uma empresa.")
         return super().dispatch(request, *args, **kwargs)
 
