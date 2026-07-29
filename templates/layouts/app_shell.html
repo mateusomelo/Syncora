@@ -2,7 +2,16 @@
 {% load icons %}
 
 {% block body %}
-<div x-data="syncoraShell()" x-init="init()" @keydown.window="onKeydown($event)" class="flex h-full bg-gray-50 dark:bg-gray-950">
+{% if request.is_impersonating %}
+<div class="flex items-center justify-between gap-3 px-4 py-2 text-sm font-medium text-white" style="background:#b45309;">
+  <span>Atuando como suporte em <strong>{{ request.tenant.name }}</strong></span>
+  <form method="post" action="{% url 'platform_admin:impersonation_stop' %}">
+    {% csrf_token %}
+    <button type="submit" class="underline underline-offset-2 hover:no-underline">Sair do modo suporte</button>
+  </form>
+</div>
+{% endif %}
+<div x-data="syncoraShell()" x-init="init()" @keydown.window="onKeydown($event)" class="flex bg-gray-50 dark:bg-gray-950" style="height: {% if request.is_impersonating %}calc(100vh - 37px){% else %}100vh{% endif %};">
 
   <div x-show="mobileOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"

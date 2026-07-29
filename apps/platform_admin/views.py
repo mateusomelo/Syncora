@@ -142,7 +142,7 @@ class ImpersonationStartView(PlatformAdminRequiredMixin, View):
         request.session["impersonating_tenant_id"] = str(tenant.id)
         request.session["impersonation_session_id"] = session.id
         _log(request, "impersonation.start", tenant, is_impersonated=True)
-        return redirect("platform_admin:impersonation_active")
+        return redirect("dashboard:home")
 
 
 class ImpersonationStopView(PlatformAdminRequiredMixin, View):

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load icons %}
+{% block body %}
+<div class="min-h-screen bg-gray-50">
+  <header class="sticky top-0 z-30 border-b border-gray-200 bg-white/85 backdrop-blur">
+    <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="{% url 'platform_admin:tenant_list' %}" class="flex items-center gap-2.5">
+        <span class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm" style="background:#12141a; font-family:'Sora',sans-serif;">S</span>
+        <span class="font-semibold text-[15px] text-gray-900" style="font-family:'Sora',sans-serif;">Syncora</span>
+        <span class="text-xs font-medium text-gray-400 bg-gray-100 rounded-full px-2 py-0.5 ml-1">Super Admin</span>
+      </a>
+      <div class="flex items-center gap-4">
+        <span class="w-8 h-8 rounded-full text-white text-xs font-semibold flex items-center justify-center" style="background:#3b5bff;">
+          {{ request.user.email|slice:":1"|upper }}
+        </span>
+      </div>
+    </div>
+  </header>
+
+  {% if messages %}
+  <div class="max-w-5xl mx-auto px-6 pt-6 space-y-2">
+    {% for message in messages %}
+    <div class="rounded-lg px-4 py-2.5 text-sm bg-gray-900 text-white">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <main class="max-w-5xl mx-auto px-6 py-10">
+    {% block admin_content %}{% endblock %}
+  </main>
+</div>
+{% endblock %}
