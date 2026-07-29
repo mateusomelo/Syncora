@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Syncora — Agenda e gestão para barbearias, clínicas e consultórios</title>
+<meta name="description" content="O Syncora organiza agenda, clientes, financeiro e prontuário da sua barbearia, clínica odontológica ou consultório de psicologia — tudo num só lugar, com a marca do seu negócio.">
+<link rel="icon" href="data:,">
+<style>
+  :root {
+    --ink: #111827;
+    --paper: #ffffff;
+    --muted-bg: #f5f6f8;
+    --text: #111827;
+    --text-dim: #6b7280;
+    --line: #e5e7eb;
+    --accent: #2563eb;
+    --accent-deep: #1d4ed8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #f3f4f6;
+      --paper: #111827;
+      --muted-bg: #171b26;
+      --text: #f3f4f6;
+      --text-dim: #9aa2b1;
+      --line: #2a3040;
+      --accent: #5b8def;
+      --accent-deep: #7fa5f2;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--text);
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.55;
+  }
+  a { color: inherit; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  header.top { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; text-decoration: none; }
+  .logo .mark { width: 30px; height: 30px; border-radius: 8px; background: var(--ink); color: var(--paper); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; }
+  nav.top-links { display: flex; gap: 28px; font-size: 14px; color: var(--text-dim); }
+  nav.top-links a { text-decoration: none; }
+  nav.top-links a:hover { color: var(--text); }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; text-decoration: none;
+    border-radius: 10px; padding: 11px 22px; font-size: 14.5px; font-weight: 600; transition: background .15s;
+  }
+  .btn-primary { background: var(--ink); color: var(--paper); }
+  .btn-primary:hover { opacity: .88; }
+  .btn-ghost { border: 1px solid var(--line); color: var(--text); }
+
+  section.hero { padding: 72px 0 56px; text-align: center; }
+  .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-bottom: 18px; }
+  h1 { font-size: clamp(32px, 5vw, 52px); line-height: 1.12; margin: 0 0 20px; text-wrap: balance; letter-spacing: -0.02em; }
+  .lede { font-size: 18px; color: var(--text-dim); max-width: 46rem; margin: 0 auto 36px; text-wrap: balance; }
+  .cta-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .fine-print { margin-top: 16px; font-size: 13px; color: var(--text-dim); }
+
+  section.verticals { padding: 40px 0 64px; }
+  .v-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .v-card { background: var(--muted-bg); border: 1px solid var(--line); border-radius: 16px; padding: 24px; }
+  .v-card .icon { font-size: 22px; margin-bottom: 12px; }
+  .v-card h3 { font-size: 16px; margin: 0 0 6px; }
+  .v-card p { font-size: 14px; color: var(--text-dim); margin: 0; }
+
+  section.features { padding: 24px 0 72px; }
+  .section-title { text-align: center; font-size: 28px; margin: 0 0 44px; letter-spacing: -0.01em; }
+  .f-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px 40px; }
+  .f-item { display: flex; gap: 14px; }
+  .f-item .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-top: 8px; flex-shrink: 0; }
+  .f-item h4 { font-size: 15.5px; margin: 0 0 4px; }
+  .f-item p { font-size: 14px; color: var(--text-dim); margin: 0; }
+
+  section.cta-final { background: var(--ink); color: var(--paper); border-radius: 24px; margin: 0 auto 80px; max-width: 1080px; padding: 56px 40px; text-align: center; }
+  section.cta-final h2 { font-size: 28px; margin: 0 0 12px; }
+  section.cta-final p { color: #cbd5e1; margin: 0 0 28px; }
+  section.cta-final .btn-primary { background: #fff; color: var(--ink); }
+
+  footer { padding: 32px 0 48px; border-top: 1px solid var(--line); font-size: 13px; color: var(--text-dim); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+
+  @media (max-width: 720px) {
+    nav.top-links { display: none; }
+    .v-grid, .f-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <a class="logo" href="/">
+      <span class="mark">S</span>
+      Syncora
+    </a>
+    <nav class="top-links">
+      <a href="#modulos">Módulos</a>
+      <a href="#recursos">Recursos</a>
+    </nav>
+    <a class="btn btn-ghost" href="https://app.syncora.app/auth/login/">Entrar</a>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow">Agenda · Clientes · Financeiro · Prontuário</div>
+    <h1>A gestão completa do seu negócio, numa tela só.</h1>
+    <p class="lede">Syncora é o sistema de agendamento e gestão para barbearias, clínicas odontológicas e consultórios de psicologia — com a marca da sua empresa, não a nossa.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="https://app.syncora.app/cadastro/">Criar minha empresa grátis</a>
+      <a class="btn btn-ghost" href="#modulos">Ver como funciona</a>
+    </div>
+    <p class="fine-print">Sem cartão de crédito para começar. Leva menos de um minuto.</p>
+  </section>
+
+  <section class="verticals" id="modulos">
+    <div class="v-grid">
+      <div class="v-card">
+        <div class="icon">✂️</div>
+        <h3>Barbearias e salões</h3>
+        <p>Agenda por profissional, pacotes de sessões, controle de caixa e produtos.</p>
+      </div>
+      <div class="v-card">
+        <div class="icon">🦷</div>
+        <h3>Clínicas odontológicas</h3>
+        <p>Odontograma, anamnese, orçamentos parcelados e prontuário por paciente.</p>
+      </div>
+      <div class="v-card">
+        <div class="icon">🧠</div>
+        <h3>Psicologia</h3>
+        <p>Prontuário sigiloso com controle de acesso restrito ao profissional responsável.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="features" id="recursos">
+    <h2 class="section-title">Tudo que a operação do dia a dia precisa</h2>
+    <div class="f-grid">
+      <div class="f-item">
+        <span class="dot"></span>
+        <div><h4>Agenda com detecção de conflito</h4><p>Bloqueia automaticamente horários sobrepostos, considerando folgas, férias e intervalo.</p></div>
+      </div>
+      <div class="f-item">
+        <span class="dot"></span>
+        <div><h4>Sincronização com Google e Outlook</h4><p>Os profissionais mantêm o calendário pessoal e o do Syncora sempre atualizados nos dois sentidos.</p></div>
+      </div>
+      <div class="f-item">
+        <span class="dot"></span>
+        <div><h4>Financeiro e comissões</h4><p>Receitas, despesas e comissão por profissional calculadas automaticamente a cada atendimento concluído.</p></div>
+      </div>
+      <div class="f-item">
+        <span class="dot"></span>
+        <div><h4>Marca própria (white label)</h4><p>Cores, logo e domínio da sua empresa — seus clientes não veem a marca Syncora.</p></div>
+      </div>
+      <div class="f-item">
+        <span class="dot"></span>
+        <div><h4>Multiempresa e multiunidade</h4><p>Cada empresa isolada com seus próprios dados, do jeito que o seu negócio já está organizado.</p></div>
+      </div>
+      <div class="f-item">
+        <span class="dot"></span>
+        <div><h4>Relatórios prontos</h4><p>Atendimentos, financeiro e comissões exportáveis, sem planilha manual.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-final">
+    <h2>Comece a organizar sua agenda hoje</h2>
+    <p>Cadastro em menos de um minuto, sem cartão de crédito.</p>
+    <a class="btn btn-primary" href="https://app.syncora.app/cadastro/">Criar minha empresa grátis</a>
+  </section>
+
+  <footer>
+    <span>© 2026 Syncora</span>
+    <span>app.syncora.app · <a href="https://app.syncora.app/auth/login/">Entrar</a></span>
+  </footer>
+</div>
+
+</body>
+</html>

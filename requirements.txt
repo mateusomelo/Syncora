@@ -1,0 +1,4 @@
+# Shim para o Nixpacks (Railway) achar o requirements na raiz do repo —
+# as dependências de verdade continuam organizadas em requirements/*.txt
+# (base/local/production/test), como já era antes do deploy.
+-r requirements/production.txt

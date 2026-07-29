@@ -97,3 +97,99 @@ O app `calendar_sync` está pronto (OAuth, tokens criptografados, importação/e
 **Apple Calendar (iCloud)** ainda não está implementado — a Apple não oferece OAuth2 para apps de terceiros; o acesso real é via CalDAV com uma senha de app gerada no Apple ID, um mecanismo diferente do usado acima. Fica para uma fase futura.
 
 `CALENDAR_SYNC_HOST` é um domínio fixo e separado (não o subdomínio de cada empresa) porque Google/Microsoft exigem um redirect_uri idêntico a cada chamada — não dá pra cadastrar o subdomínio de cada cliente. Em produção, aponte um subdomínio real (ex.: `connect.syncora.app`) pra essa variável e cadastre-o nos consoles acima; em desenvolvimento local já vem configurado como `connect.localhost`.
+
+## Deploy em produção
+
+Arquitetura de hospedagem adotada:
+
+- **Railway** — o Django inteiro (templates, API, admin, tudo) roda aqui, como 3 serviços a partir do mesmo repositório: `web` (gunicorn), `worker` (Celery) e `beat` (Celery beat), todos definidos no `Procfile` da raiz. Também hospeda o addon de **PostgreSQL** e o addon de **Redis**.
+- **Netlify** — hospeda só o site estático institucional (`netlify-site/`, pasta separada, sem nenhuma lógica de negócio), no domínio apex (ex.: `syncora.app`). O botão "Criar minha empresa" desse site aponta para o cadastro real, servido pelo Django no Railway.
+
+Por causa disso, a divisão de domínio fica assim:
+
+| Domínio | Aponta para | Serve |
+|---|---|---|
+| `syncora.app` (apex) | Netlify | Site institucional estático |
+| `app.syncora.app` | Railway | Cadastro self-service (`MARKETING_HOST`) |
+| `admin.syncora.app` | Railway | Painel do Super Admin |
+| `connect.syncora.app` | Railway | Callback fixo do OAuth de calendário |
+| `*.syncora.app` (wildcard) | Railway | Subdomínio de cada empresa cliente |
+
+O apex e o wildcard são registros DNS independentes — não há conflito em apontar um pro Netlify e o outro pro Railway.
+
+### Passo a passo: Railway (backend Django + Postgres + Redis)
+
+1. **Criar o projeto**: no [Railway](https://railway.app), "New Project" → "Deploy from GitHub repo" → selecione este repositório.
+2. **Adicionar o Postgres**: dentro do projeto, "New" → "Database" → "Add PostgreSQL". O Railway injeta `DATABASE_URL` automaticamente nas variáveis do projeto — não precisa criar essa variável à mão (ver `config/settings/base.py`, que já prioriza `DATABASE_URL` quando ela existe).
+3. **Adicionar o Redis**: "New" → "Database" → "Add Redis". Injeta `REDIS_URL` automaticamente, do mesmo jeito.
+4. **Criar os 3 serviços a partir do mesmo repo** (o Railway lê o `Procfile` da raiz e permite escolher qual processo cada serviço roda):
+   - Serviço `web`: process type `web` — vai expor a porta HTTP pública. Ative "Generate Domain" pra ter uma URL `*.up.railway.app` de teste antes do domínio próprio estar pronto.
+   - Serviço `worker`: process type `worker` (Celery) — sem porta pública.
+   - Serviço `beat`: process type `beat` (Celery beat) — sem porta pública. **Só rode uma instância** (beat duplicado dispara tasks repetidas).
+   
+   Os 3 serviços precisam das mesmas variáveis de ambiente (Railway deixa compartilhar variáveis entre serviços do mesmo projeto).
+5. **Configurar as variáveis de ambiente** (ver lista completa mais abaixo) em cada um dos 3 serviços.
+6. **Domínio próprio**: no serviço `web` → Settings → Networking → "Custom Domain" → adicione `app.syncora.app`, `admin.syncora.app`, `connect.syncora.app` e o wildcard `*.syncora.app`, criando os registros CNAME correspondentes no seu provedor de DNS apontando pro valor que o Railway mostrar.
+7. O primeiro deploy roda automaticamente `python manage.py migrate` e `collectstatic` (ver `release:` no `Procfile`) antes de subir o `web`.
+
+### Passo a passo: Netlify (site estático)
+
+1. No [Netlify](https://app.netlify.com), "Add new site" → "Import an existing project" → selecione este mesmo repositório.
+2. O `netlify.toml` na raiz já configura tudo: `publish = "netlify-site"`, sem comando de build (é HTML puro, sem etapa de compilação).
+3. Domínio: em Site settings → Domain management, adicione `syncora.app` (apex) como domínio primário e siga as instruções de DNS do Netlify (geralmente um registro `A`/`ALIAS` pro apex).
+4. Pronto — qualquer alteração em `netlify-site/` publicada na branch principal já entra em produção automaticamente.
+
+### Conectando o PostgreSQL
+
+Não precisa de nenhum passo manual de conexão — o addon do Railway já injeta `DATABASE_URL` no ambiente de todos os serviços do projeto automaticamente. Se precisar rodar uma migration ou abrir um shell manualmente contra o banco de produção:
+
+```bash
+railway run python manage.py migrate
+railway run python manage.py createsuperuser
+railway run python manage.py dbshell
+```
+
+(`railway run` executa o comando localmente já com as variáveis de ambiente do serviço selecionado, incluindo `DATABASE_URL` — requer a [Railway CLI](https://docs.railway.app/guides/cli) instalada e `railway login`/`railway link` feitos antes.)
+
+### Variáveis de ambiente — lista completa
+
+Todas documentadas com comentário em `.env.example`; resumo por categoria:
+
+| Variável | Obrigatória? | Observação |
+|---|---|---|
+| `DJANGO_SETTINGS_MODULE` | Sim | `config.settings.production` no Railway |
+| `SECRET_KEY` | Sim | gere uma única, nunca reaproveite a de dev |
+| `DEBUG` | Sim | `False` em produção |
+| `ALLOWED_HOSTS` | Sim | `syncora.app,.syncora.app` |
+| `DATABASE_URL` | Auto (Railway) | injetada pelo addon de Postgres |
+| `REDIS_URL` | Auto (Railway) | injetada pelo addon de Redis |
+| `RAILWAY_PUBLIC_DOMAIN` | Auto (Railway) | não precisa definir manualmente |
+| `FIELD_ENCRYPTION_KEY` | Sim | gere com o comando no `.env.example` — diferente do `SECRET_KEY` |
+| `PLATFORM_ADMIN_HOST` | Sim | `admin.syncora.app` |
+| `TENANT_BASE_DOMAIN` | Sim | `syncora.app` |
+| `MARKETING_HOST` | Sim | `app.syncora.app` |
+| `CALENDAR_SYNC_HOST` | Sim | `connect.syncora.app` |
+| `CALENDAR_SYNC_CALLBACK_BASE_URL` | Sim | `https://connect.syncora.app` |
+| `EMAIL_HOST` / `EMAIL_PORT` / `EMAIL_HOST_USER` / `EMAIL_HOST_PASSWORD` / `EMAIL_USE_TLS` | Sim | provedor SMTP real (SES, Postmark, Resend, etc.) |
+| `DEFAULT_FROM_EMAIL` | Não | tem default |
+| `GOOGLE_OAUTH_CLIENT_ID` / `GOOGLE_OAUTH_CLIENT_SECRET` | Não | em branco = botão aparece desabilitado, ver seção de calendário |
+| `MICROSOFT_OAUTH_CLIENT_ID` / `MICROSOFT_OAUTH_CLIENT_SECRET` | Não | idem |
+| `SENTRY_DSN` | Não | em branco = sem monitoramento de erro, app funciona normal |
+| `SENTRY_TRACES_SAMPLE_RATE` / `ENVIRONMENT` | Não | têm default |
+| `AWS_STORAGE_BUCKET_NAME` | Não | em branco = mídia fica em disco local (não recomendado em produção) |
+| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` / `AWS_S3_REGION_NAME` / `AWS_S3_ENDPOINT_URL` / `AWS_S3_CUSTOM_DOMAIN` | Só se usar S3 | AWS S3, Cloudflare R2 ou Backblaze B2 — todos compatíveis |
+
+### Checklist final antes de lançar
+
+- [ ] `SECRET_KEY` e `FIELD_ENCRYPTION_KEY` gerados de novo pra produção (nunca os mesmos do `.env` de dev)
+- [ ] `DEBUG=False` confirmado no Railway
+- [ ] Os 3 serviços (`web`, `worker`, `beat`) rodando, com **apenas um** `beat` ativo
+- [ ] Domínios configurados: apex → Netlify, `app.`/`admin.`/`connect.`/wildcard → Railway
+- [ ] Certificado HTTPS ativo em todos os domínios (Railway e Netlify emitem automaticamente via Let's Encrypt assim que o DNS propaga)
+- [ ] `python manage.py createsuperuser` rodado no ambiente de produção (super admin da plataforma)
+- [ ] E-mail transacional testado de verdade (recuperação de senha, boas-vindas do cadastro)
+- [ ] `AWS_STORAGE_BUCKET_NAME` configurado se for lançar com clientes reais fazendo upload de foto/documento (senão o disco se perde a cada redeploy)
+- [ ] `SENTRY_DSN` configurado (recomendado antes do primeiro cliente real)
+- [ ] Testar o cadastro self-service de ponta a ponta em `https://app.syncora.app/cadastro/`
+- [ ] Testar login num subdomínio de empresa real (não o de teste) para confirmar TLS do wildcard
+- [ ] Rodar um restore de teste do backup do Postgres (ver `docs/operations/backup-restore.md`) antes do lançamento valer pra clientes de verdade

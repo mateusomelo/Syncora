@@ -1,3 +1,4 @@
+import re
 from datetime import timedelta
 from pathlib import Path
 
@@ -104,17 +105,28 @@ TEMPLATES = [
 ]
 
 # --- Banco de dados -------------------------------------------------------
+# Railway (e a maioria dos provedores gerenciados) injeta uma única
+# DATABASE_URL, em vez das variáveis DB_* separadas usadas em dev local.
+# dj_database_url só é importado quando DATABASE_URL existe de fato, então
+# continua sem exigir esse pacote instalado em ambientes de desenvolvimento.
+DATABASE_URL = env("DATABASE_URL", default="")
+if DATABASE_URL:
+    import dj_database_url
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": env("DB_NAME"),
-        "USER": env("DB_USER"),
-        "PASSWORD": env("DB_PASSWORD"),
-        "HOST": env("DB_HOST", default="localhost"),
-        "PORT": env("DB_PORT", default="5432"),
+    DATABASES = {
+        "default": dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": env("DB_NAME"),
+            "USER": env("DB_USER"),
+            "PASSWORD": env("DB_PASSWORD"),
+            "HOST": env("DB_HOST", default="localhost"),
+            "PORT": env("DB_PORT", default="5432"),
+        }
+    }
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -145,9 +157,13 @@ AUTH_PASSWORD_VALIDATORS = [
 PLATFORM_ADMIN_HOST = env("PLATFORM_ADMIN_HOST", default="admin.syncora.local")
 TENANT_BASE_DOMAIN = env("TENANT_BASE_DOMAIN", default="syncora.local")
 TENANT_BYPASS_HOSTS = env.list("TENANT_BYPASS_HOSTS", default=["localhost", "127.0.0.1"])
-# Site público de marketing/cadastro self-service (apps/onboarding) — em
-# produção, o domínio apex (ex.: "syncora.app", sem subdomínio nenhum).
-MARKETING_HOST = env("MARKETING_HOST", default="syncora.app")
+# Site de cadastro self-service (apps/onboarding) — não confundir com o site
+# de marketing/institucional (esse é estático, hospedado à parte no Netlify,
+# fora do Django inteiramente — ver docs de deploy no README). Fica num
+# subdomínio (ex.: "app.syncora.app"), não no domínio apex, porque em
+# produção o apex aponta pro Netlify e o Django responde só pelo wildcard
+# *.TENANT_BASE_DOMAIN.
+MARKETING_HOST = env("MARKETING_HOST", default="app.syncora.app")
 
 # Chave de criptografia (Fernet) para tokens OAuth de terceiros em repouso —
 # ver apps/core/fields.py:EncryptedTextField. Não é a mesma coisa que
@@ -222,8 +238,13 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
 }
 
+# Precisa cobrir os 4 hosts especiais do TenantResolutionMiddleware, não só
+# TENANT_BASE_DOMAIN — nos valores padrão de dev/exemplo eles coincidem por
+# serem subdomínios do mesmo domínio, mas isso não é garantido (ex.:
+# MARKETING_HOST pode ser um domínio completamente diferente).
+_CORS_HOSTS = {TENANT_BASE_DOMAIN, PLATFORM_ADMIN_HOST, MARKETING_HOST, CALENDAR_SYNC_HOST}
 CORS_ALLOWED_ORIGIN_REGEXES = [
-    rf"^https?://([a-zA-Z0-9-]+\.)?{TENANT_BASE_DOMAIN.replace('.', r'\.')}$",
+    rf"^https?://([a-zA-Z0-9-]+\.)?{re.escape(host)}$" for host in _CORS_HOSTS
 ]
 
 # --- Cache / Redis ---------------------------------------------------------
@@ -295,6 +316,30 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+# Upload de arquivos (logos, fotos de cliente/profissional, documentos) —
+# por padrão fica no disco local (STATIC_ROOT/MEDIA_ROOT), o que funciona em
+# dev mas não é durável nem escalável num servidor de aplicação stateless
+# (o disco se perde a cada deploy/restart em serviços como o Railway sem
+# volume). Se AWS_STORAGE_BUCKET_NAME estiver definido, troca para
+# armazenamento S3-compatível (AWS S3, Cloudflare R2, Backblaze B2 — todos
+# falam o mesmo protocolo) via django-storages; sem isso configurado, a
+# aplicação continua funcionando normalmente com disco local, mesmo padrão
+# usado para OAuth/Sentry (build pronto, credencial real fica pro usuário).
+AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME", default="")
+STORAGES = {
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+}
+if AWS_STORAGE_BUCKET_NAME:
+    AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID", default="")
+    AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY", default="")
+    AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default="auto")
+    AWS_S3_ENDPOINT_URL = env("AWS_S3_ENDPOINT_URL", default="")
+    AWS_S3_CUSTOM_DOMAIN = env("AWS_S3_CUSTOM_DOMAIN", default="")
+    AWS_DEFAULT_ACL = None
+    AWS_QUERYSTRING_AUTH = False
+    STORAGES["default"] = {"BACKEND": "storages.backends.s3.S3Storage"}
 
 # --- Logging -------------------------------------------------------------
 

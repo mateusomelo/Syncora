@@ -2,3 +2,6 @@
 gunicorn>=23.0
 uvicorn[standard]>=0.30
 sentry-sdk>=2.13
+dj-database-url>=2.3
+django-storages>=1.14
+boto3>=1.35
