@@ -130,7 +130,11 @@ O apex e o wildcard são registros DNS independentes — não há conflito em ap
    Os 3 serviços precisam das mesmas variáveis de ambiente (Railway deixa compartilhar variáveis entre serviços do mesmo projeto).
 5. **Configurar as variáveis de ambiente** (ver lista completa mais abaixo) em cada um dos 3 serviços.
 6. **Domínio próprio**: no serviço `web` → Settings → Networking → "Custom Domain" → adicione `app.syncora.app`, `admin.syncora.app`, `connect.syncora.app` e o wildcard `*.syncora.app`, criando os registros CNAME correspondentes no seu provedor de DNS apontando pro valor que o Railway mostrar.
-7. O primeiro deploy roda automaticamente `python manage.py migrate` e `collectstatic` (ver `release:` no `Procfile`) antes de subir o `web`.
+7. **Migrations e arquivos estáticos**: diferente do Heroku, o Railway **não** roda uma linha `release:` do Procfile automaticamente. No serviço `web` → Settings → Deploy → **Pre-Deploy Command**, configure:
+   ```
+   python manage.py migrate --noinput && python manage.py collectstatic --noinput
+   ```
+   Isso roda uma vez antes de cada deploy do `web` (não precisa repetir nos serviços `worker`/`beat`).
 
 ### Passo a passo: Netlify (site estático)
 
