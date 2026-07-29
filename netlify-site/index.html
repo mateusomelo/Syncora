@@ -39,6 +39,19 @@
   h1, h2, h3, .display { font-family: 'Sora', sans-serif; text-wrap: balance; letter-spacing: -0.02em; }
   .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
 
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
+    .reveal.is-visible { opacity: 1; transform: translateY(0); }
+    .reveal-stagger.is-visible > * { animation: revealItem .6s cubic-bezier(.16,1,.3,1) both; }
+    .reveal-stagger.is-visible > *:nth-child(1) { animation-delay: .05s; }
+    .reveal-stagger.is-visible > *:nth-child(2) { animation-delay: .13s; }
+    .reveal-stagger.is-visible > *:nth-child(3) { animation-delay: .21s; }
+    .reveal-stagger.is-visible > *:nth-child(4) { animation-delay: .29s; }
+    .reveal-stagger.is-visible > *:nth-child(5) { animation-delay: .37s; }
+    .reveal-stagger.is-visible > *:nth-child(6) { animation-delay: .45s; }
+    @keyframes revealItem { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  }
+
   header.top {
     position: sticky; top: 0; z-index: 40; backdrop-filter: blur(10px);
     background: color-mix(in srgb, var(--paper) 82%, transparent);
@@ -60,7 +73,7 @@
   .btn-ghost { border: 1px solid var(--line); color: var(--text); }
   .btn-ghost:hover { border-color: color-mix(in srgb, var(--text) 30%, var(--line)); }
 
-  section.hero { position: relative; padding: 100px 0 84px; text-align: center; overflow: hidden; }
+  section.hero { position: relative; padding: 96px 0 0; text-align: center; overflow: hidden; }
   .hero-glow {
     position: absolute; inset: 0; z-index: 0; pointer-events: none;
     background-image: radial-gradient(circle at 50% 0%, var(--accent-soft), transparent 55%);
@@ -71,6 +84,14 @@
     background-size: 28px 28px;
     mask-image: radial-gradient(ellipse 60% 50% at 50% 20%, black, transparent 75%);
   }
+  .blob { position: absolute; border-radius: 50%; filter: blur(50px); z-index: 0; opacity: .5; pointer-events: none; }
+  @media (prefers-reduced-motion: no-preference) {
+    .blob { animation: float 9s ease-in-out infinite; }
+  }
+  @keyframes float { 0%,100% { transform: translate(0,0); } 50% { transform: translate(14px,-18px); } }
+  .blob-1 { width: 220px; height: 220px; background: var(--accent); top: 60px; left: 6%; animation-delay: 0s; }
+  .blob-2 { width: 160px; height: 160px; background: #22d3ee; top: 220px; right: 8%; opacity: .28; animation-delay: 2s; }
+
   .hero-inner { position: relative; z-index: 1; }
   .eyebrow {
     display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;
@@ -82,22 +103,42 @@
   .cta-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
   .fine-print { margin-top: 18px; font-size: 13px; color: var(--text-dim); }
 
-  .hero-shot {
-    margin: 64px auto 0; max-width: 920px; border-radius: 20px; border: 1px solid var(--line);
-    background: var(--muted-bg); padding: 10px; box-shadow: 0 40px 80px -30px rgba(0,0,0,.25);
+  /* Product window mockup */
+  .product-window {
+    margin: 60px auto 0; max-width: 940px; border-radius: 16px 16px 0 0; border: 1px solid var(--line); border-bottom: none;
+    background: var(--paper); box-shadow: 0 50px 100px -30px rgba(0,0,0,.3); overflow: hidden;
+    transform: perspective(1400px) rotateX(2deg); transform-origin: bottom center;
   }
-  .hero-shot-inner {
-    border-radius: 12px; background: var(--paper); border: 1px solid var(--line);
-    padding: 28px; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 14px; text-align: left;
-  }
-  .stat-card { border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
-  .stat-card .label { font-size: 12.5px; color: var(--text-dim); margin-bottom: 6px; }
-  .stat-card .value { font-family: 'Sora', sans-serif; font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .stat-card .value.up { color: #16a34a; }
+  .window-bar { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--muted-bg); }
+  .window-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .window-url { margin: 0 auto; font-size: 12px; color: var(--text-dim); background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 3px 14px; }
+  .window-body { display: flex; text-align: left; height: 380px; }
+  .mock-sidebar { width: 168px; background: var(--ink); flex-shrink: 0; padding: 18px 12px; display: flex; flex-direction: column; gap: 4px; }
+  .mock-side-brand { display: flex; align-items: center; gap: 8px; color: #fff; font-weight: 700; font-size: 13px; margin-bottom: 16px; padding: 0 6px; font-family: 'Sora', sans-serif; }
+  .mock-side-item { display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,.55); font-size: 12.5px; padding: 7px 8px; border-radius: 7px; }
+  .mock-side-item.active { background: rgba(255,255,255,.1); color: #fff; }
+  .mock-side-item .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .7; flex-shrink: 0; }
+  .mock-main { flex: 1; padding: 20px 22px; overflow: hidden; background: var(--muted-bg); }
+  .mock-title { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 14px; }
+  .mock-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 14px; }
+  .mock-stat { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+  .mock-stat .l { font-size: 10.5px; color: var(--text-dim); margin-bottom: 5px; }
+  .mock-stat .v { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 16px; font-variant-numeric: tabular-nums; }
+  .mock-stat .v.up { color: #16a34a; }
+  .mock-grid2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 10px; }
+  .mock-card { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+  .mock-card h4 { font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-dim); margin: 0 0 12px; font-weight: 600; }
+  .mock-bars { display: flex; align-items: flex-end; gap: 8px; height: 90px; }
+  .mock-bar { flex: 1; background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 40%, transparent)); border-radius: 4px 4px 0 0; }
+  .mock-agenda-row { display: flex; align-items: center; gap: 8px; font-size: 11.5px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+  .mock-agenda-row:last-child { border-bottom: none; }
+  .mock-time { font-variant-numeric: tabular-nums; color: var(--text-dim); width: 34px; flex-shrink: 0; }
+  .mock-chip { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
 
-  section.verticals { padding: 88px 0 12px; }
   .kicker { text-align: center; font-size: 13px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 12px; }
   .section-title { text-align: center; font-size: clamp(26px, 3.4vw, 36px); margin: 0 0 52px; font-weight: 700; }
+
+  section.verticals { padding: 108px 0 12px; }
   .v-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
   .v-card { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 28px; transition: transform .2s, box-shadow .2s; }
   .v-card:hover { transform: translateY(-3px); box-shadow: 0 20px 40px -20px rgba(0,0,0,.15); }
@@ -105,12 +146,40 @@
   .v-card h3 { font-size: 17px; margin: 0 0 8px; font-weight: 600; }
   .v-card p { font-size: 14.5px; color: var(--text-dim); margin: 0; }
 
-  section.features { padding: 96px 0 88px; }
+  section.how { padding: 96px 0 88px; }
+  .how-grid { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+  .how-grid::before {
+    content: ""; position: absolute; top: 22px; left: 16.5%; right: 16.5%; height: 1px;
+    background: repeating-linear-gradient(90deg, var(--line) 0 8px, transparent 8px 16px);
+  }
+  .how-step { position: relative; text-align: center; }
+  .how-num {
+    width: 44px; height: 44px; border-radius: 50%; background: var(--ink); color: #fff; font-family: 'Sora', sans-serif; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; position: relative; z-index: 1; font-size: 16px;
+  }
+  .how-step h4 { font-size: 16px; margin: 0 0 8px; font-weight: 600; }
+  .how-step p { font-size: 14px; color: var(--text-dim); margin: 0; max-width: 22rem; margin-inline: auto; }
+
+  section.features { padding: 12px 0 88px; }
   .f-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-  .f-item { display: flex; gap: 16px; padding: 24px; border-radius: 16px; border: 1px solid var(--line); background: var(--muted-bg); }
+  .f-item { display: flex; gap: 16px; padding: 24px; border-radius: 16px; border: 1px solid var(--line); background: var(--muted-bg); transition: border-color .2s; }
+  .f-item:hover { border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
   .f-icon { width: 38px; height: 38px; border-radius: 10px; background: var(--paper); border: 1px solid var(--line); color: var(--accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .f-item h4 { font-size: 15.5px; margin: 0 0 5px; font-weight: 600; }
   .f-item p { font-size: 14px; color: var(--text-dim); margin: 0; line-height: 1.55; }
+
+  section.faq { padding: 12px 0 96px; }
+  .faq-list { max-width: 46rem; margin: 0 auto; }
+  .faq-item { border-bottom: 1px solid var(--line); }
+  .faq-q {
+    width: 100%; text-align: left; background: none; border: none; cursor: pointer; padding: 20px 4px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; font-size: 15.5px; font-weight: 600; color: var(--text);
+    font-family: inherit;
+  }
+  .faq-q .chev { transition: transform .25s; color: var(--text-dim); flex-shrink: 0; }
+  .faq-item.open .faq-q .chev { transform: rotate(45deg); }
+  .faq-a { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
+  .faq-a p { margin: 0 4px 20px; font-size: 14.5px; color: var(--text-dim); line-height: 1.6; max-width: 40rem; }
 
   section.cta-final {
     position: relative; overflow: hidden; background: var(--ink); color: #fff;
@@ -134,7 +203,13 @@
     nav.top-links { display: none; }
     .v-grid { grid-template-columns: 1fr; }
     .f-grid { grid-template-columns: 1fr; }
-    .hero-shot-inner { grid-template-columns: 1fr 1fr; }
+    .how-grid { grid-template-columns: 1fr; gap: 36px; }
+    .how-grid::before { display: none; }
+    .product-window { transform: none; }
+    .window-body { height: auto; flex-direction: column; }
+    .mock-sidebar { display: none; }
+    .mock-stats { grid-template-columns: repeat(2,1fr); }
+    .mock-grid2 { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -149,6 +224,7 @@
     <nav class="top-links">
       <a href="#modulos">Módulos</a>
       <a href="#recursos">Recursos</a>
+      <a href="#faq">Dúvidas</a>
     </nav>
     <a class="btn btn-ghost" href="https://web-production-9973f.up.railway.app/auth/login/">Entrar</a>
   </div>
@@ -157,25 +233,69 @@
 <section class="hero">
   <div class="hero-glow"></div>
   <div class="hero-dots"></div>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
   <div class="wrap hero-inner">
-    <div class="eyebrow">
+    <div class="eyebrow reveal">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
       Agenda · Clientes · Financeiro · Prontuário
     </div>
-    <h1 class="headline">A gestão completa do seu negócio,<br><span class="accent-word">numa tela só.</span></h1>
-    <p class="lede">Syncora é o sistema de agendamento e gestão para barbearias, clínicas odontológicas e consultórios de psicologia — com a marca da sua empresa, não a nossa.</p>
-    <div class="cta-row">
+    <h1 class="headline reveal">A gestão completa do seu negócio,<br><span class="accent-word">numa tela só.</span></h1>
+    <p class="lede reveal">Syncora é o sistema de agendamento e gestão para barbearias, clínicas odontológicas e consultórios de psicologia — com a marca da sua empresa, não a nossa.</p>
+    <div class="cta-row reveal">
       <a class="btn btn-primary" href="https://web-production-9973f.up.railway.app/cadastro/">Criar minha empresa grátis</a>
       <a class="btn btn-ghost" href="#modulos">Ver como funciona</a>
     </div>
-    <p class="fine-print">Sem cartão de crédito para começar. Leva menos de um minuto.</p>
+    <p class="fine-print reveal">Sem cartão de crédito para começar. Leva menos de um minuto.</p>
 
-    <div class="hero-shot">
-      <div class="hero-shot-inner">
-        <div class="stat-card"><div class="label">Agendamentos hoje</div><div class="value">18</div></div>
-        <div class="stat-card"><div class="label">Faturamento no mês</div><div class="value up">R$ 12.480</div></div>
-        <div class="stat-card"><div class="label">Profissionais ativos</div><div class="value">6</div></div>
-        <div class="stat-card"><div class="label">Taxa de retorno</div><div class="value up">82%</div></div>
+    <div class="product-window reveal">
+      <div class="window-bar">
+        <span class="window-dot" style="background:#ff5f57;"></span>
+        <span class="window-dot" style="background:#febc2e;"></span>
+        <span class="window-dot" style="background:#28c840;"></span>
+        <span class="window-url">app.syncora.app/agenda</span>
+      </div>
+      <div class="window-body">
+        <div class="mock-sidebar">
+          <div class="mock-side-brand"><span>●</span> Syncora</div>
+          <div class="mock-side-item active"><span class="dot"></span> Dashboard</div>
+          <div class="mock-side-item"><span class="dot"></span> Agenda</div>
+          <div class="mock-side-item"><span class="dot"></span> Clientes</div>
+          <div class="mock-side-item"><span class="dot"></span> Funcionários</div>
+          <div class="mock-side-item"><span class="dot"></span> Serviços</div>
+          <div class="mock-side-item"><span class="dot"></span> Financeiro</div>
+          <div class="mock-side-item"><span class="dot"></span> Relatórios</div>
+        </div>
+        <div class="mock-main">
+          <div class="mock-title">Dashboard · hoje</div>
+          <div class="mock-stats">
+            <div class="mock-stat"><div class="l">Agendamentos</div><div class="v">18</div></div>
+            <div class="mock-stat"><div class="l">Faturamento</div><div class="v up">R$ 12.480</div></div>
+            <div class="mock-stat"><div class="l">Profissionais</div><div class="v">6</div></div>
+            <div class="mock-stat"><div class="l">Retorno</div><div class="v up">82%</div></div>
+          </div>
+          <div class="mock-grid2">
+            <div class="mock-card">
+              <h4>Faturamento — últimos 7 dias</h4>
+              <div class="mock-bars">
+                <div class="mock-bar" style="height:40%"></div>
+                <div class="mock-bar" style="height:65%"></div>
+                <div class="mock-bar" style="height:50%"></div>
+                <div class="mock-bar" style="height:80%"></div>
+                <div class="mock-bar" style="height:60%"></div>
+                <div class="mock-bar" style="height:95%"></div>
+                <div class="mock-bar" style="height:72%"></div>
+              </div>
+            </div>
+            <div class="mock-card">
+              <h4>Agenda de hoje</h4>
+              <div class="mock-agenda-row"><span class="mock-time">09:00</span><span class="mock-chip"></span> Corte + Barba</div>
+              <div class="mock-agenda-row"><span class="mock-time">10:30</span><span class="mock-chip"></span> Avaliação</div>
+              <div class="mock-agenda-row"><span class="mock-time">11:15</span><span class="mock-chip"></span> Retorno</div>
+              <div class="mock-agenda-row"><span class="mock-time">14:00</span><span class="mock-chip"></span> Sessão</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -183,9 +303,9 @@
 
 <section class="verticals" id="modulos">
   <div class="wrap">
-    <div class="kicker">Módulos</div>
-    <h2 class="section-title">Feito pro seu tipo de negócio</h2>
-    <div class="v-grid">
+    <div class="kicker reveal">Módulos</div>
+    <h2 class="section-title reveal">Feito pro seu tipo de negócio</h2>
+    <div class="v-grid reveal-stagger reveal">
       <div class="v-card">
         <div class="v-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75a2.25 2.25 0 100 4.5 2.25 2.25 0 000-4.5zM6.75 15.75a2.25 2.25 0 100 4.5 2.25 2.25 0 000-4.5zM8.5 9.5L19.5 19.5M8.5 14.5L19.5 4.5"/></svg>
@@ -211,11 +331,35 @@
   </div>
 </section>
 
+<section class="how">
+  <div class="wrap">
+    <div class="kicker reveal">Como funciona</div>
+    <h2 class="section-title reveal">Do zero ao primeiro atendimento em 3 passos</h2>
+    <div class="how-grid reveal-stagger reveal">
+      <div class="how-step">
+        <div class="how-num">1</div>
+        <h4>Crie sua empresa</h4>
+        <p>Nome, subdomínio e senha — sem cartão de crédito, leva menos de um minuto.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-num">2</div>
+        <h4>Configure sua agenda</h4>
+        <p>Cadastre profissionais, serviços e horário de trabalho de cada um.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-num">3</div>
+        <h4>Comece a atender</h4>
+        <p>Marque o primeiro horário — o Syncora cuida de conflitos, lembretes e financeiro.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="features" id="recursos">
   <div class="wrap">
-    <div class="kicker">Recursos</div>
-    <h2 class="section-title">Tudo que a operação do dia a dia precisa</h2>
-    <div class="f-grid">
+    <div class="kicker reveal">Recursos</div>
+    <h2 class="section-title reveal">Tudo que a operação do dia a dia precisa</h2>
+    <div class="f-grid reveal-stagger reveal">
       <div class="f-item">
         <div class="f-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75"/></svg></div>
         <div><h4>Agenda com detecção de conflito</h4><p>Bloqueia automaticamente horários sobrepostos, considerando folgas, férias e intervalo.</p></div>
@@ -244,7 +388,40 @@
   </div>
 </section>
 
-<section class="cta-final">
+<section class="faq" id="faq">
+  <div class="wrap">
+    <div class="kicker reveal">Dúvidas</div>
+    <h2 class="section-title reveal">Perguntas frequentes</h2>
+    <div class="faq-list reveal">
+      <div class="faq-item">
+        <button class="faq-q">Preciso de cartão de crédito pra começar?<span class="chev">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+        </span></button>
+        <div class="faq-a"><p>Não. O cadastro é gratuito e leva menos de um minuto — sem pedir dados de pagamento.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Dá pra usar em mais de uma unidade?<span class="chev">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+        </span></button>
+        <div class="faq-a"><p>Sim, o Syncora já foi pensado pra multiunidade — cada empresa continua isolada e organizada do jeito que o negócio já funciona.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Meus clientes vão ver a marca Syncora?<span class="chev">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+        </span></button>
+        <div class="faq-a"><p>Não — o white label deixa cores, logo e domínio com a identidade da sua empresa, não a nossa.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Funciona pra qualquer tipo de negócio com agenda?<span class="chev">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+        </span></button>
+        <div class="faq-a"><p>Hoje o Syncora tem módulos prontos para barbearias/salões, clínicas odontológicas e psicologia — com mais segmentos chegando.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-final reveal">
   <div class="wrap inner">
     <h2>Comece a organizar sua agenda hoje</h2>
     <p>Cadastro em menos de um minuto, sem cartão de crédito.</p>
@@ -265,6 +442,42 @@
     </div>
   </div>
 </footer>
+
+<script>
+  // Revela seções/cards ao rolar a página (opacidade + leve deslocamento).
+  // Roda direto no load pra elementos já visíveis na primeira dobra (hero).
+  var els = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(function (el) { io.observe(el); });
+  } else {
+    els.forEach(function (el) { el.classList.add('is-visible'); });
+  }
+
+  // Acordeão de perguntas frequentes.
+  document.querySelectorAll('.faq-item').forEach(function (item) {
+    var btn = item.querySelector('.faq-q');
+    var answer = item.querySelector('.faq-a');
+    btn.addEventListener('click', function () {
+      var isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(function (other) {
+        other.classList.remove('open');
+        other.querySelector('.faq-a').style.maxHeight = null;
+      });
+      if (!isOpen) {
+        item.classList.add('open');
+        answer.style.maxHeight = answer.scrollHeight + 'px';
+      }
+    });
+  });
+</script>
 
 </body>
 </html>
