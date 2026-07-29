@@ -4,23 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página não encontrada · Syncora</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root { --ink:#12141a; --text-dim:#8b8f99; --accent:#3b5bff; }
+        * { box-sizing: border-box; }
         body {
             margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
             font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: #f5f2ec; color: #211f1a;
+            background: var(--ink); color: #fff; position: relative; overflow: hidden;
         }
-        @media (prefers-color-scheme: dark) { body { background: #15161a; color: #eae6dd; } }
-        .box { text-align: center; padding: 2rem; max-width: 28rem; }
-        .code { font-size: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #a9752e; margin-bottom: 12px; }
-        h1 { font-size: 22px; margin: 0 0 8px; }
-        p { font-size: 15px; color: #6b6459; margin: 0 0 24px; }
-        a { display: inline-block; background: #17181d; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; }
+        .bg-glow {
+            position: absolute; inset: 0;
+            background-image: radial-gradient(circle at 30% 30%, rgba(59,91,255,.25), transparent 45%), radial-gradient(circle at 75% 70%, rgba(59,91,255,.15), transparent 40%);
+        }
+        .bg-dots {
+            position: absolute; inset: 0;
+            background-image: radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px);
+            background-size: 26px 26px;
+            mask-image: radial-gradient(circle at center, black, transparent 70%);
+        }
+        .box { position: relative; z-index: 1; text-align: center; padding: 2rem; max-width: 26rem; }
+        .code { font-family: 'Sora', sans-serif; font-size: 88px; font-weight: 800; line-height: 1; margin: 0 0 8px; color: var(--accent); letter-spacing: -0.03em; }
+        h1 { font-family: 'Sora', sans-serif; font-size: 22px; font-weight: 600; margin: 0 0 10px; }
+        p { font-size: 14.5px; color: var(--text-dim); margin: 0 0 28px; line-height: 1.5; }
+        a { display: inline-flex; align-items: center; gap: 6px; background: var(--accent); color: #fff; text-decoration: none; padding: 11px 22px; border-radius: 10px; font-size: 14px; font-weight: 500; box-shadow: 0 8px 24px rgba(59,91,255,.3); transition: transform .15s; }
+        a:hover { transform: translateY(-1px); }
     </style>
 </head>
 <body>
+    <div class="bg-glow"></div>
+    <div class="bg-dots"></div>
     <div class="box">
-        <div class="code">Erro 404</div>
+        <div class="code">404</div>
         <h1>Página não encontrada</h1>
         <p>O endereço acessado não existe ou a empresa associada a este domínio não está mais disponível.</p>
         <a href="/">Voltar ao início</a>

@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Syncora{% endblock %}</title>
     {% if branding.favicon %}<link rel="icon" href="{{ branding.favicon.url }}">{% endif %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     {# PWA: instalável, ícones e service worker cache-first só para estáticos (ver static/src/js/sw.js). #}
     <link rel="manifest" href="{% static 'manifest.json' %}">

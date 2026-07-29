@@ -1,26 +1,65 @@
 {% extends "base.html" %}
 {% block title %}Criar minha empresa · Syncora{% endblock %}
 {% block content %}
-<div class="min-h-screen flex items-center justify-center px-4 py-10">
-  <div class="w-full max-w-md">
-    <h1 class="text-2xl font-semibold mb-2 text-center">Comece grátis no Syncora</h1>
-    <p class="text-sm text-gray-500 mb-6 text-center">Crie sua empresa em menos de um minuto. Sem cartão de crédito para começar o teste.</p>
-    <form method="post" class="space-y-4 bg-white p-6 rounded-xl border border-gray-200">
-      {% csrf_token %}
-      {{ form.non_field_errors }}
-      {% for field in form %}
-      <div>
-        <label class="block text-sm font-medium mb-1 text-gray-700" for="{{ field.id_for_label }}">{{ field.label }}</label>
-        {{ field }}
-        {% if field.help_text %}<p class="text-xs text-gray-400 mt-1">{{ field.help_text }}</p>{% endif %}
-        {% if field.errors %}<p class="text-sm text-red-600 mt-1">{{ field.errors|join:", " }}</p>{% endif %}
+<div class="min-h-screen flex bg-white">
+
+  <div class="hidden lg:flex lg:w-[40%] relative flex-col justify-between p-12 overflow-hidden" style="background:#12141a;">
+    <div class="absolute inset-0 opacity-40" style="background-image:radial-gradient(circle at 15% 15%, rgba(59,91,255,.35), transparent 45%), radial-gradient(circle at 85% 75%, rgba(59,91,255,.2), transparent 40%);"></div>
+    <div class="absolute inset-0" style="background-image:radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px); background-size:26px 26px; mask-image:linear-gradient(to bottom, black, transparent 85%);"></div>
+
+    <div class="relative z-10 flex items-center gap-2.5">
+      <span class="w-8 h-8 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center text-white font-bold text-sm" style="font-family:'Sora',sans-serif;">S</span>
+      <span class="text-white font-semibold text-[15px]" style="font-family:'Sora',sans-serif;">Syncora</span>
+    </div>
+
+    <div class="relative z-10 max-w-sm">
+      <div class="inline-block text-xs font-medium text-white/70 bg-white/10 border border-white/10 rounded-full px-3 py-1 mb-5">Sem cartão de crédito</div>
+      <h1 class="text-white text-[30px] leading-tight font-semibold mb-4" style="font-family:'Sora',sans-serif; text-wrap:balance;">Sua empresa organizada em menos de um minuto.</h1>
+      <p class="text-white/60 text-[15px] leading-relaxed">Barbearia, clínica odontológica ou consultório de psicologia — o Syncora se adapta ao seu negócio.</p>
+    </div>
+
+    <p class="relative z-10 text-white/30 text-xs">© 2026 Syncora</p>
+  </div>
+
+  <div class="flex-1 flex items-center justify-center px-6 py-14 overflow-y-auto">
+    <div class="w-full max-w-sm">
+      <div class="lg:hidden flex items-center gap-2.5 mb-8 justify-center">
+        <span class="w-8 h-8 rounded-lg bg-gray-900 flex items-center justify-center text-white font-bold text-sm" style="font-family:'Sora',sans-serif;">S</span>
+        <span class="text-gray-900 font-semibold text-[15px]" style="font-family:'Sora',sans-serif;">Syncora</span>
       </div>
-      {% endfor %}
-      <button type="submit" class="w-full rounded-lg bg-gray-900 text-white py-2 font-medium hover:bg-gray-800">Criar minha empresa</button>
-    </form>
+
+      <h2 class="text-[26px] font-semibold text-gray-900 mb-1.5" style="font-family:'Sora',sans-serif;">Comece grátis</h2>
+      <p class="text-sm text-gray-500 mb-7">Crie sua empresa agora — leva menos de um minuto.</p>
+
+      <form method="post" class="space-y-4">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+        <div class="rounded-lg bg-red-50 border border-red-100 px-3.5 py-2.5 text-sm text-red-600">{{ form.non_field_errors }}</div>
+        {% endif %}
+        {% for field in form %}
+        <div>
+          <label class="block text-[13px] font-medium mb-1.5 text-gray-700" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<p class="text-xs text-gray-400 mt-1">{{ field.help_text }}</p>{% endif %}
+          {% if field.errors %}<p class="text-xs text-red-600 mt-1">{{ field.errors|join:", " }}</p>{% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="w-full rounded-xl text-white py-3 font-medium text-sm transition-all shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/30 hover:-translate-y-px mt-2" style="background:#3b5bff;">
+          Criar minha empresa
+        </button>
+        <p class="text-xs text-center text-gray-400 pt-1">Já tem conta? <a href="{% url 'authentication:login' %}" class="text-gray-600 hover:text-gray-900 font-medium">Entrar</a></p>
+      </form>
+    </div>
   </div>
 </div>
 <style type="text/tailwindcss">
-  input, select { @apply w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-gray-900; }
+  input, select {
+    @apply w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 placeholder-gray-400 bg-gray-50 transition-all;
+  }
+  input:focus, select:focus {
+    @apply outline-none bg-white;
+    box-shadow: 0 0 0 3px rgba(59,91,255,.15);
+    border-color: #3b5bff;
+  }
 </style>
 {% endblock %}

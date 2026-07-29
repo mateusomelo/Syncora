@@ -1,37 +1,89 @@
 {% extends "base.html" %}
 {% block title %}Entrar · Syncora{% endblock %}
 {% block content %}
-<div class="min-h-screen flex items-center justify-center px-4">
-  <div class="w-full max-w-sm">
-    <h1 class="text-2xl font-semibold mb-6 text-center">Entrar no Syncora</h1>
-    <form method="post" class="space-y-4 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-      {% csrf_token %}
-      {% if form.non_field_errors %}
-      <div class="text-sm text-red-600">{{ form.non_field_errors }}</div>
-      {% endif %}
-      <div>
-        <label class="block text-sm font-medium mb-1 text-gray-700" for="{{ form.username.id_for_label }}">E-mail</label>
-        {{ form.username }}
+<div class="min-h-screen flex bg-white">
+
+  <div class="hidden lg:flex lg:w-[44%] relative flex-col justify-between p-12 overflow-hidden" style="background:#12141a;">
+    <div class="absolute inset-0 opacity-40" style="background-image:radial-gradient(circle at 20% 20%, rgba(59,91,255,.35), transparent 45%), radial-gradient(circle at 80% 70%, rgba(59,91,255,.2), transparent 40%);"></div>
+    <div class="absolute inset-0" style="background-image:radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px); background-size:26px 26px; mask-image:linear-gradient(to bottom, black, transparent 85%);"></div>
+
+    <div class="relative z-10 flex items-center gap-2.5">
+      <span class="w-8 h-8 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center text-white font-bold text-sm" style="font-family:'Sora',sans-serif;">S</span>
+      <span class="text-white font-semibold text-[15px]" style="font-family:'Sora',sans-serif;">Syncora</span>
+    </div>
+
+    <div class="relative z-10 max-w-sm">
+      <h1 class="text-white text-[32px] leading-tight font-semibold mb-4" style="font-family:'Sora',sans-serif; text-wrap:balance;">A agenda da sua empresa, sempre à mão.</h1>
+      <p class="text-white/60 text-[15px] leading-relaxed">Agenda, clientes, financeiro e prontuário — tudo isolado e seguro pra sua empresa, com a sua marca.</p>
+      <ul class="mt-8 space-y-3">
+        <li class="flex items-center gap-3 text-white/80 text-sm">
+          <span class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+          </span>
+          Detecção automática de conflito de horário
+        </li>
+        <li class="flex items-center gap-3 text-white/80 text-sm">
+          <span class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+          </span>
+          Sincronização com Google e Outlook
+        </li>
+        <li class="flex items-center gap-3 text-white/80 text-sm">
+          <span class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+          </span>
+          Cada empresa isolada, com a sua marca
+        </li>
+      </ul>
+    </div>
+
+    <p class="relative z-10 text-white/30 text-xs">© 2026 Syncora</p>
+  </div>
+
+  <div class="flex-1 flex items-center justify-center px-6 py-16">
+    <div class="w-full max-w-sm">
+      <div class="lg:hidden flex items-center gap-2.5 mb-10 justify-center">
+        <span class="w-8 h-8 rounded-lg bg-gray-900 flex items-center justify-center text-white font-bold text-sm" style="font-family:'Sora',sans-serif;">S</span>
+        <span class="text-gray-900 font-semibold text-[15px]" style="font-family:'Sora',sans-serif;">Syncora</span>
       </div>
-      <div>
-        <label class="block text-sm font-medium mb-1 text-gray-700" for="{{ form.password.id_for_label }}">Senha</label>
-        <div class="relative">
-          {{ form.password }}
-          <button type="button" onclick="const f=document.getElementById('{{ form.password.id_for_label }}'); f.type = f.type === 'password' ? 'text' : 'password'; this.textContent = f.type === 'password' ? 'Mostrar' : 'Ocultar';" class="absolute inset-y-0 right-0 px-3 text-xs font-medium text-gray-500 hover:text-gray-900">Mostrar</button>
+
+      <h2 class="text-[26px] font-semibold text-gray-900 mb-1.5" style="font-family:'Sora',sans-serif;">Entrar</h2>
+      <p class="text-sm text-gray-500 mb-8">Acesse o painel da sua empresa.</p>
+
+      <form method="post" class="space-y-5">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+        <div class="rounded-lg bg-red-50 border border-red-100 px-3.5 py-2.5 text-sm text-red-600">{{ form.non_field_errors }}</div>
+        {% endif %}
+        <div>
+          <label class="block text-[13px] font-medium mb-1.5 text-gray-700" for="{{ form.username.id_for_label }}">E-mail</label>
+          {{ form.username }}
         </div>
-      </div>
-      <button type="submit" class="w-full rounded-lg bg-gray-900 text-white py-2 font-medium hover:bg-gray-800 transition">
-        Entrar
-      </button>
-      <div class="text-sm text-center">
-        <a href="{% url 'authentication:password_reset' %}" class="text-gray-500 hover:text-gray-900">Esqueceu a senha?</a>
-      </div>
-    </form>
+        <div>
+          <label class="block text-[13px] font-medium mb-1.5 text-gray-700" for="{{ form.password.id_for_label }}">Senha</label>
+          <div class="relative">
+            {{ form.password }}
+            <button type="button" onclick="const f=document.getElementById('{{ form.password.id_for_label }}'); f.type = f.type === 'password' ? 'text' : 'password'; this.textContent = f.type === 'password' ? 'Mostrar' : 'Ocultar';" class="absolute inset-y-0 right-0 px-3.5 text-xs font-medium text-gray-400 hover:text-gray-900 transition-colors">Mostrar</button>
+          </div>
+        </div>
+        <button type="submit" class="w-full rounded-xl text-white py-3 font-medium text-sm transition-all shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/30 hover:-translate-y-px" style="background:#3b5bff;">
+          Entrar
+        </button>
+        <div class="text-sm text-center pt-1">
+          <a href="{% url 'authentication:password_reset' %}" class="text-gray-400 hover:text-gray-700 transition-colors">Esqueceu a senha?</a>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 <style type="text/tailwindcss">
   input[type=email], input[type=password], input[type=text] {
-    @apply w-full rounded-lg border border-gray-300 px-3 py-2 pr-16 text-sm text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-gray-900;
+    @apply w-full rounded-xl border border-gray-200 px-3.5 py-2.5 pr-16 text-sm text-gray-900 placeholder-gray-400 bg-gray-50 transition-all;
+  }
+  input[type=email]:focus, input[type=password]:focus, input[type=text]:focus {
+    @apply outline-none bg-white;
+    box-shadow: 0 0 0 3px rgba(59,91,255,.15);
+    border-color: #3b5bff;
   }
 </style>
 {% endblock %}
