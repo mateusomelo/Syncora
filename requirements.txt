@@ -1,4 +1,31 @@
-# Shim para o Nixpacks (Railway) achar o requirements na raiz do repo —
-# as dependências de verdade continuam organizadas em requirements/*.txt
-# (base/local/production/test), como já era antes do deploy.
--r requirements/production.txt
+# Autocontido de propósito (não usa "-r requirements/production.txt")! O
+# Railpack (builder do Railway) copia esse arquivo pro build ANTES do resto
+# do repositório, especificamente pra cachear a camada de "pip install" -
+# uma referência a requirements/production.txt falha nesse momento porque
+# essa pasta ainda não foi copiada. As dependências reais continuam
+# organizadas em requirements/*.txt (base/local/production/test); se mudar
+# uma lá, espelha aqui também. Ver requirements/production.txt para a fonte.
+Django>=5.1,<6.0
+djangorestframework>=3.15
+djangorestframework-simplejwt>=5.3
+psycopg[binary]>=3.2
+django-environ>=0.11
+redis>=5.0
+celery>=5.4
+django-cors-headers>=4.4
+drf-spectacular>=0.27
+Pillow>=10.4
+django-htmx>=1.19
+django-widget-tweaks>=1.5
+whitenoise>=6.7
+django-axes>=6.5
+django-eventstream>=5.3
+openpyxl>=3.1
+reportlab>=4.2
+cryptography>=43.0
+gunicorn>=23.0
+uvicorn[standard]>=0.30
+sentry-sdk>=2.13
+dj-database-url>=2.3
+django-storages>=1.14
+boto3>=1.35
