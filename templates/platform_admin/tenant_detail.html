@@ -68,5 +68,25 @@
       {% endfor %}
     </div>
   </div>
+
+  <div class="border border-red-200 bg-red-50/40 rounded-2xl p-6">
+    <h2 class="font-medium text-red-900 mb-1">Zona de risco</h2>
+    <p class="text-sm text-red-700/80 mb-4">Exclui a empresa e todos os dados dela permanentemente. Não tem como desfazer.</p>
+    <div x-data="{ confirmText: '' }">
+      <form method="post" action="{% url 'platform_admin:tenant_delete' tenant.pk %}"
+            onsubmit="return confirm('Excluir {{ tenant.name|escapejs }} permanentemente? Essa ação não pode ser desfeita.');"
+            class="flex flex-wrap items-center gap-2">
+        {% csrf_token %}
+        <input type="text" name="confirm_subdomain" x-model="confirmText"
+               placeholder="Digite &quot;{{ tenant.subdomain }}&quot; para confirmar"
+               class="rounded-xl border border-red-200 bg-white px-3.5 py-2.5 text-sm w-72 focus:outline-none focus:ring-2 focus:ring-red-300">
+        <button type="submit" :disabled="confirmText !== '{{ tenant.subdomain|escapejs }}'"
+                :class="confirmText === '{{ tenant.subdomain|escapejs }}' ? 'bg-red-600 hover:bg-red-700 cursor-pointer' : 'bg-red-200 cursor-not-allowed'"
+                class="rounded-xl text-white px-4 py-2.5 text-sm font-medium transition-colors whitespace-nowrap">
+          Excluir permanentemente
+        </button>
+      </form>
+    </div>
+  </div>
 </div>
 {% endblock %}

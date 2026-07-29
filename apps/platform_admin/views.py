@@ -8,7 +8,10 @@ from django.views.generic import CreateView, DetailView, ListView, TemplateView,
 
 from apps.audit.models import AuditLog, ImpersonationSession
 from apps.branding.models import BrandingSettings
+from apps.scheduling.models import Appointment
 from apps.tenants.models import FeatureFlag, Tenant
+from apps.verticals.barber.models import ClientPackage
+from apps.verticals.psychology.models import ClinicalRecord
 
 from .forms import TenantForm
 
@@ -114,6 +117,35 @@ class TenantActivateView(PlatformAdminRequiredMixin, View):
         _log(request, "tenant.activate", tenant)
         messages.success(request, f"{tenant.name} ativada.")
         return redirect("platform_admin:tenant_detail", pk=pk)
+
+
+class TenantDeleteView(PlatformAdminRequiredMixin, View):
+    """Exclusão permanente (não é o soft-delete padrão). Exige digitar o
+    subdomínio de volta pra confirmar — irreversível, sem lixeira.
+
+    Appointment/ClinicalRecord/ClientPackage usam on_delete=PROTECT em cima
+    de Client/Professional/Package (histórico não deve sumir sozinho num
+    cascade) — isso bloqueia até o cascade automático do Tenant se esses
+    registros ainda existirem. Por isso são apagados explicitamente aqui
+    antes do hard_delete() do tenant, na ordem certa. Mesmo padrão usado
+    nos scripts de smoke test a sessão inteira (ver docs/memória do projeto)."""
+
+    def post(self, request, pk):
+        tenant = get_object_or_404(Tenant.all_objects, pk=pk)
+        if request.POST.get("confirm_subdomain", "").strip() != tenant.subdomain:
+            messages.error(request, "Subdomínio não confere — exclusão cancelada.")
+            return redirect("platform_admin:tenant_detail", pk=pk)
+
+        name = tenant.name
+        _log(request, "tenant.delete", tenant, changes={"subdomain": tenant.subdomain})
+
+        Appointment.all_objects.filter(tenant=tenant).hard_delete()
+        ClinicalRecord.all_objects.filter(tenant=tenant).hard_delete()
+        ClientPackage.all_objects.filter(tenant=tenant).hard_delete()
+        tenant.delete(hard=True)
+
+        messages.success(request, f'"{name}" foi excluída permanentemente.')
+        return redirect("platform_admin:tenant_list")
 
 
 class FeatureFlagToggleView(PlatformAdminRequiredMixin, View):
