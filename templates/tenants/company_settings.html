@@ -1,0 +1,43 @@
+{% extends "layouts/app_shell.html" %}
+{% block page_title %}<span class="text-gray-300 dark:text-gray-700 mx-1">/</span><span class="text-gray-800 dark:text-gray-200 font-medium">Empresa</span>{% endblock %}
+{% block title %}Empresa · Syncora{% endblock %}
+{% block page %}
+<div class="max-w-lg mx-auto py-10 px-4">
+  <h1 class="text-2xl font-semibold mb-1 text-gray-900 dark:text-gray-50" style="font-family:'Sora',sans-serif;">Empresa</h1>
+  <p class="text-sm text-gray-500 mb-6">Dados cadastrais da sua empresa no Syncora.</p>
+
+  <form method="post" class="space-y-4 bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}
+    <div>
+      <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300" for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% if field.errors %}<p class="text-sm text-red-600 mt-1">{{ field.errors|join:", " }}</p>{% endif %}
+    </div>
+    {% endfor %}
+    <button type="submit" class="w-full rounded-xl text-white py-2.5 font-medium shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/30 transition-all" style="background:#3b5bff;">Salvar</button>
+  </form>
+
+  <div class="mt-5 rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
+    <h2 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">Somente leitura</h2>
+    <dl class="space-y-2 text-sm">
+      <div class="flex justify-between"><dt class="text-gray-500">Subdomínio</dt><dd class="text-gray-900 dark:text-gray-100 font-medium">{{ tenant.subdomain }}</dd></div>
+      <div class="flex justify-between"><dt class="text-gray-500">Plano</dt><dd class="text-gray-900 dark:text-gray-100 font-medium">{{ tenant.plan.name }}</dd></div>
+      <div class="flex justify-between"><dt class="text-gray-500">Status</dt><dd class="text-gray-900 dark:text-gray-100 font-medium">{{ tenant.get_status_display }}</dd></div>
+    </dl>
+    <p class="text-xs text-gray-400 mt-4">Precisa mudar subdomínio ou plano? Fale com <a href="mailto:suporte@syncora.app" class="underline" style="color:#3b5bff;">suporte@syncora.app</a>.</p>
+  </div>
+
+  <a href="{% url 'branding:settings' %}" class="mt-5 flex items-center justify-between rounded-2xl border border-gray-200 dark:border-gray-800 p-5 hover:border-gray-300 dark:hover:border-gray-700 transition-colors group">
+    <div>
+      <p class="text-sm font-medium text-gray-900 dark:text-gray-100">Logo, cores e aparência</p>
+      <p class="text-xs text-gray-500 mt-0.5">Personalize a marca da sua empresa em Aparência</p>
+    </div>
+    <span class="text-gray-300 group-hover:translate-x-0.5 transition-transform" style="color:#3b5bff;">→</span>
+  </a>
+</div>
+<style type="text/tailwindcss">
+  input, select { @apply w-full rounded-xl border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100; }
+</style>
+{% endblock %}

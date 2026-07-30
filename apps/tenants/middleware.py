@@ -10,6 +10,20 @@ CACHE_TTL_SECONDS = 30
 _NONE_SENTINEL = "__none__"
 
 
+def invalidate_tenant_cache(tenant):
+    """Limpa o cache de resolução de host pro subdomínio (e domínios
+    próprios) desse tenant -- chamado pelos signals em apps/tenants/signals.py
+    sempre que o Tenant ou um CustomDomain dele muda. Sem isso, editar dados
+    da empresa (ou suspendê-la!) podia levar até CACHE_TTL_SECONDS pra
+    refletir, porque o middleware reaproveitava o objeto Tenant cacheado.
+
+    A chave precisa ser o host completo (subdomínio + TENANT_BASE_DOMAIN),
+    igual ao que _resolve_tenant() usa -- não só o subdomínio sozinho."""
+    cache.delete(f"tenant_resolution:{tenant.subdomain}.{settings.TENANT_BASE_DOMAIN}")
+    for domain in tenant.custom_domains.all():
+        cache.delete(f"tenant_resolution:{domain.domain}")
+
+
 class TenantResolutionMiddleware:
     """Resolve o tenant pelo Host header antes de qualquer outra lógica de
     request e injeta em request.tenant + contextvar (lido pelo TenantManager

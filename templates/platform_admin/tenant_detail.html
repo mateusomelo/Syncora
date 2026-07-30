@@ -69,6 +69,65 @@
     </div>
   </div>
 
+  <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-medium text-gray-900">Usuários</h2>
+      <span class="text-xs text-gray-400">{{ memberships|length }} pessoa{{ memberships|length|pluralize }}</span>
+    </div>
+
+    {% if memberships %}
+    <div class="divide-y divide-gray-100 mb-5 -mx-2">
+      {% for membership in memberships %}
+      <div class="flex items-center justify-between px-2 py-2.5">
+        <div>
+          <p class="text-sm font-medium text-gray-900">{{ membership.user.get_full_name|default:membership.user.email }}</p>
+          <p class="text-xs text-gray-400">{{ membership.user.email }}</p>
+        </div>
+        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium {% if membership.is_active %}bg-emerald-50 text-emerald-700{% else %}bg-gray-100 text-gray-500{% endif %}">
+          <span class="w-1.5 h-1.5 rounded-full {% if membership.is_active %}bg-emerald-500{% else %}bg-gray-400{% endif %}"></span>
+          {{ membership.get_role_display }}
+        </span>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-sm text-gray-400 mb-5">Essa empresa ainda não tem nenhum usuário — sem isso, ninguém consegue entrar.</p>
+    {% endif %}
+
+    <details class="group">
+      <summary class="cursor-pointer text-sm font-medium list-none flex items-center gap-1.5" style="color:#3b5bff;">
+        <span class="group-open:rotate-45 transition-transform">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+        </span>
+        Criar acesso
+      </summary>
+      <form method="post" action="{% url 'platform_admin:tenant_user_create' tenant.pk %}" class="mt-4 grid grid-cols-2 gap-3">
+        {% csrf_token %}
+        <div>
+          <label class="block text-xs font-medium mb-1 text-gray-600">{{ membership_form.first_name.label }}</label>
+          {{ membership_form.first_name }}
+        </div>
+        <div>
+          <label class="block text-xs font-medium mb-1 text-gray-600">{{ membership_form.last_name.label }}</label>
+          {{ membership_form.last_name }}
+        </div>
+        <div class="col-span-2">
+          <label class="block text-xs font-medium mb-1 text-gray-600">{{ membership_form.email.label }}</label>
+          {{ membership_form.email }}
+        </div>
+        <div>
+          <label class="block text-xs font-medium mb-1 text-gray-600">{{ membership_form.role.label }}</label>
+          {{ membership_form.role }}
+        </div>
+        <div>
+          <label class="block text-xs font-medium mb-1 text-gray-600">{{ membership_form.password.label }}</label>
+          {{ membership_form.password }}
+        </div>
+        <button type="submit" class="col-span-2 rounded-xl text-white py-2.5 text-sm font-medium mt-1" style="background:#3b5bff;">Criar acesso</button>
+      </form>
+    </details>
+  </div>
+
   <div class="border border-red-200 bg-red-50/40 rounded-2xl p-6">
     <h2 class="font-medium text-red-900 mb-1">Zona de risco</h2>
     <p class="text-sm text-red-700/80 mb-4">Exclui a empresa e todos os dados dela permanentemente. Não tem como desfazer.</p>
@@ -89,4 +148,14 @@
     </div>
   </div>
 </div>
+<style type="text/tailwindcss">
+  details input, details select {
+    @apply w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 bg-gray-50 transition-all;
+  }
+  details input:focus, details select:focus {
+    @apply outline-none bg-white;
+    box-shadow: 0 0 0 3px rgba(59,91,255,.15);
+    border-color: #3b5bff;
+  }
+</style>
 {% endblock %}

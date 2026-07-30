@@ -1,11 +1,15 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.utils.html import format_html
 from django.views import View
 from django.views.generic import CreateView, DetailView, ListView, TemplateView, UpdateView
 
+from apps.accounts.forms import MembershipInviteForm
+from apps.accounts.models import Membership
 from apps.audit.models import AuditLog, ImpersonationSession
 from apps.branding.models import BrandingSettings
 from apps.scheduling.models import Appointment
@@ -48,7 +52,24 @@ class TenantListView(PlatformAdminRequiredMixin, ListView):
     paginate_by = 25
 
     def get_queryset(self):
-        return Tenant.all_objects.select_related("plan").order_by("name")
+        qs = Tenant.all_objects.select_related("plan").order_by("name")
+        query = self.request.GET.get("q", "").strip()
+        if query:
+            qs = qs.filter(Q(name__icontains=query) | Q(subdomain__icontains=query) | Q(trade_name__icontains=query))
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        all_tenants = Tenant.all_objects.select_related("plan").all()
+        ctx["query"] = self.request.GET.get("q", "")
+        ctx["stats"] = {
+            "total": all_tenants.count(),
+            "active": all_tenants.filter(status=Tenant.Status.ACTIVE).count(),
+            "trial": all_tenants.filter(status=Tenant.Status.TRIAL).count(),
+            "suspended": all_tenants.filter(status=Tenant.Status.SUSPENDED).count(),
+            "mrr": sum((t.plan.price for t in all_tenants if t.status == Tenant.Status.ACTIVE), start=0),
+        }
+        return ctx
 
 
 class TenantCreateView(PlatformAdminRequiredMixin, CreateView):
@@ -94,7 +115,41 @@ class TenantDetailView(PlatformAdminRequiredMixin, DetailView):
         ctx["active_impersonation"] = ImpersonationSession.objects.filter(
             tenant=self.object, ended_at__isnull=True
         ).first()
+        ctx["memberships"] = Membership.objects.filter(tenant=self.object).select_related(
+            "user"
+        ).order_by("-role", "user__email")
+        ctx["membership_form"] = MembershipInviteForm(tenant=self.object)
         return ctx
+
+
+class TenantUserCreateView(PlatformAdminRequiredMixin, View):
+    def post(self, request, pk):
+        tenant = get_object_or_404(Tenant.all_objects, pk=pk)
+        form = MembershipInviteForm(request.POST, tenant=tenant)
+        if not form.is_valid():
+            errors = " ".join(f"{f}: {', '.join(e)}" for f, e in form.errors.items())
+            messages.error(request, f"Não deu pra criar o acesso — {errors}")
+            return redirect("platform_admin:tenant_detail", pk=pk)
+
+        membership, generated_password = form.save()
+        _log(
+            request,
+            "tenant.user.create",
+            tenant,
+            changes={"email": membership.user.email, "role": membership.role},
+        )
+        if generated_password:
+            messages.success(
+                request,
+                format_html(
+                    "Acesso criado para <strong>{}</strong>. Senha inicial: <code>{}</code> — copie agora, não aparece de novo.",
+                    membership.user.email,
+                    generated_password,
+                ),
+            )
+        else:
+            messages.success(request, f"{membership.user.email} agora tem acesso a {tenant.name}.")
+        return redirect("platform_admin:tenant_detail", pk=pk)
 
 
 class TenantSuspendView(PlatformAdminRequiredMixin, View):

@@ -12,6 +12,7 @@ urlpatterns = [
     path("tenants/<uuid:pk>/suspender/", views.TenantSuspendView.as_view(), name="tenant_suspend"),
     path("tenants/<uuid:pk>/ativar/", views.TenantActivateView.as_view(), name="tenant_activate"),
     path("tenants/<uuid:pk>/excluir/", views.TenantDeleteView.as_view(), name="tenant_delete"),
+    path("tenants/<uuid:pk>/usuarios/novo/", views.TenantUserCreateView.as_view(), name="tenant_user_create"),
     path(
         "tenants/<uuid:pk>/flags/<str:key>/toggle/",
         views.FeatureFlagToggleView.as_view(),

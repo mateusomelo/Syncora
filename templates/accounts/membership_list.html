@@ -1,0 +1,89 @@
+{% extends "layouts/app_shell.html" %}
+{% load icons %}
+{% block page_title %}<span class="text-gray-300 dark:text-gray-700 mx-1">/</span><span class="text-gray-800 dark:text-gray-200 font-medium">Usuários</span>{% endblock %}
+{% block title %}Usuários · Syncora{% endblock %}
+{% block page %}
+<div class="max-w-4xl mx-auto py-10 px-4">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-[26px] font-semibold text-gray-900 dark:text-gray-50" style="font-family:'Sora',sans-serif;">Usuários</h1>
+      <p class="text-sm text-gray-500 mt-1">{{ memberships|length }} pessoa{{ memberships|length|pluralize }} com acesso a essa empresa</p>
+    </div>
+    <a href="{% url 'accounts:membership_create' %}" class="inline-flex items-center gap-2 rounded-xl text-white px-4 py-2.5 text-sm font-medium shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/30 hover:-translate-y-px transition-all" style="background:#3b5bff;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+      Convidar pessoa
+    </a>
+  </div>
+
+  {% if generated %}
+  <div x-data="{ show: true, copied: false }" x-show="show" class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <p class="text-sm font-semibold text-amber-900">Senha gerada para {{ generated.email }}</p>
+        <p class="text-xs text-amber-700/80 mt-0.5 mb-3">Copie agora — essa senha não vai aparecer de novo. Peça pra pessoa trocar no primeiro acesso.</p>
+        <div class="flex items-center gap-2">
+          <code id="generated-password" class="text-sm font-mono bg-white border border-amber-200 rounded-lg px-3 py-1.5 text-amber-900">{{ generated.password }}</code>
+          <button type="button" @click="navigator.clipboard.writeText('{{ generated.password|escapejs }}'); copied = true; setTimeout(() => copied = false, 1500)"
+                  class="text-xs font-medium rounded-lg border border-amber-300 px-3 py-1.5 text-amber-800 hover:bg-amber-100 transition-colors">
+            <span x-show="!copied">Copiar</span><span x-show="copied" style="display:none;">Copiado!</span>
+          </button>
+        </div>
+      </div>
+      <button @click="show = false" class="text-amber-400 hover:text-amber-600">
+        {% icon "x-mark" "w-4 h-4" %}
+      </button>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50/80 dark:bg-gray-800/60 text-left text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wide">
+        <tr>
+          <th class="px-5 py-3.5 font-medium">Nome</th>
+          <th class="px-5 py-3.5 font-medium">Papel</th>
+          <th class="px-5 py-3.5 font-medium">Status</th>
+          <th class="px-5 py-3.5"></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+        {% for membership in memberships %}
+        <tr class="hover:bg-gray-50/60 dark:hover:bg-gray-800/40 transition-colors">
+          <td class="px-5 py-4">
+            <p class="font-medium text-gray-900 dark:text-gray-100">{{ membership.user.get_full_name|default:membership.user.email }}</p>
+            <p class="text-gray-400 text-xs">{{ membership.user.email }}</p>
+          </td>
+          <td class="px-5 py-4">
+            <form method="post" action="{% url 'accounts:membership_role' membership.pk %}">
+              {% csrf_token %}
+              <select name="role" onchange="this.form.submit()" class="text-sm rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-100">
+                {% for value, label in role_choices %}
+                <option value="{{ value }}" {% if membership.role == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </form>
+          </td>
+          <td class="px-5 py-4">
+            <form method="post" action="{% url 'accounts:membership_toggle_active' membership.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium {% if membership.is_active %}bg-emerald-50 text-emerald-700{% else %}bg-gray-100 text-gray-500{% endif %}">
+                <span class="w-1.5 h-1.5 rounded-full {% if membership.is_active %}bg-emerald-500{% else %}bg-gray-400{% endif %}"></span>
+                {% if membership.is_active %}Ativo{% else %}Inativo{% endif %}
+              </button>
+            </form>
+          </td>
+          <td class="px-5 py-4 text-right">
+            <form method="post" action="{% url 'accounts:membership_delete' membership.pk %}" onsubmit="return confirm('Remover {{ membership.user.email|escapejs }} dessa empresa?');">
+              {% csrf_token %}
+              <button type="submit" class="text-sm font-medium text-gray-400 hover:text-red-600 transition-colors">Remover</button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="px-5 py-12 text-center text-gray-400">Ninguém cadastrado ainda.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

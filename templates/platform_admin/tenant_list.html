@@ -4,13 +4,39 @@
 <div class="flex items-center justify-between mb-8">
   <div>
     <h1 class="text-[26px] font-semibold text-gray-900" style="font-family:'Sora',sans-serif;">Empresas</h1>
-    <p class="text-sm text-gray-500 mt-1">{{ tenants|length }} empresa{{ tenants|length|pluralize }} na plataforma</p>
+    <p class="text-sm text-gray-500 mt-1">{{ stats.total }} empresa{{ stats.total|pluralize }} na plataforma</p>
   </div>
   <a href="{% url 'platform_admin:tenant_create' %}" class="inline-flex items-center gap-2 rounded-xl text-white px-4 py-2.5 text-sm font-medium shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/30 hover:-translate-y-px transition-all" style="background:#3b5bff;">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
     Nova empresa
   </a>
 </div>
+
+<div class="grid grid-cols-4 gap-4 mb-6">
+  <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+    <p class="text-xs uppercase tracking-wide text-gray-400 font-medium mb-1.5">Total</p>
+    <p class="text-2xl font-semibold text-gray-900" style="font-family:'Sora',sans-serif;">{{ stats.total }}</p>
+  </div>
+  <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+    <p class="text-xs uppercase tracking-wide text-gray-400 font-medium mb-1.5">Ativas</p>
+    <p class="text-2xl font-semibold text-emerald-600" style="font-family:'Sora',sans-serif;">{{ stats.active }}</p>
+  </div>
+  <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+    <p class="text-xs uppercase tracking-wide text-gray-400 font-medium mb-1.5">Em trial</p>
+    <p class="text-2xl font-semibold text-blue-600" style="font-family:'Sora',sans-serif;">{{ stats.trial }}</p>
+  </div>
+  <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+    <p class="text-xs uppercase tracking-wide text-gray-400 font-medium mb-1.5">MRR (empresas ativas)</p>
+    <p class="text-2xl font-semibold text-gray-900" style="font-family:'Sora',sans-serif;">R$ {{ stats.mrr|floatformat:0 }}</p>
+  </div>
+</div>
+
+<form method="get" class="mb-5">
+  <div class="relative max-w-sm">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+    <input type="search" name="q" value="{{ query }}" placeholder="Buscar por nome ou subdomínio..." class="w-full rounded-xl border border-gray-200 bg-white pl-10 pr-3.5 py-2.5 text-sm focus:outline-none focus:ring-2" style="box-shadow: {% if query %}0 0 0 3px rgba(59,91,255,.1){% endif %};">
+  </div>
+</form>
 
 <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
   <table class="w-full text-sm">
@@ -48,7 +74,7 @@
         </td>
       </tr>
       {% empty %}
-      <tr><td colspan="5" class="px-5 py-12 text-center text-gray-400">Nenhuma empresa cadastrada ainda.</td></tr>
+      <tr><td colspan="5" class="px-5 py-12 text-center text-gray-400">{% if query %}Nenhuma empresa encontrada para "{{ query }}".{% else %}Nenhuma empresa cadastrada ainda.{% endif %}</td></tr>
       {% endfor %}
     </tbody>
   </table>

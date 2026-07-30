@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.http import Http404
 from django.shortcuts import redirect
 
@@ -17,6 +18,33 @@ class TenantRequiredMixin:
             if request.user.is_authenticated and request.user.is_platform_admin:
                 return redirect("platform_admin:tenant_list")
             raise Http404("Esta página só existe no contexto de uma empresa.")
+        return super().dispatch(request, *args, **kwargs)
+
+
+class AdminEmpresaRequiredMixin(TenantRequiredMixin):
+    """Restringe a view ao papel admin_empresa dentro do tenant atual --
+    usado pelas telas de Configurações (Usuários/Empresa/Aparência), que
+    mexem em algo que afeta a empresa inteira, não só o usuário logado.
+
+    Herda a checagem de tenant do TenantRequiredMixin (via super().dispatch());
+    se essa checagem redirecionar/404, curto-circuita antes de olhar o papel.
+    """
+
+    def dispatch(self, request, *args, **kwargs):
+        if getattr(request, "tenant", None) is None:
+            return super().dispatch(request, *args, **kwargs)
+
+        from apps.accounts.models import Membership
+
+        is_admin = Membership.objects.filter(
+            tenant=request.tenant,
+            user=request.user,
+            role=Membership.Role.ADMIN_EMPRESA,
+            is_active=True,
+        ).exists()
+        if not is_admin:
+            messages.error(request, "Só administradores da empresa acessam essa página.")
+            return redirect("dashboard:home")
         return super().dispatch(request, *args, **kwargs)
 
 

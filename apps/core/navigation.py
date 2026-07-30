@@ -41,11 +41,10 @@ STATIC_SECTIONS = [
     {
         "label": "Configurações",
         "items": [
-            {"label": "Empresa", "icon": "building", "stub": True},
-            {"label": "Usuários", "icon": "user-circle", "stub": True},
-            {"label": "Permissões", "icon": "shield-check", "stub": True},
+            {"label": "Empresa", "icon": "building", "url_name": "tenants:settings", "namespace": "tenants"},
+            {"label": "Usuários", "icon": "user-circle", "url_name": "accounts:membership_list", "namespace": "accounts"},
             {"label": "Integrações", "icon": "puzzle", "url_name": "calendar_sync:professional_calendar", "requires_professional": True},
-            {"label": "Aparência", "icon": "swatch", "stub": True},
+            {"label": "Aparência", "icon": "swatch", "url_name": "branding:settings", "namespace": "branding"},
         ],
     },
     {

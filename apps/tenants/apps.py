@@ -6,3 +6,6 @@ class TenantsConfig(AppConfig):
     name = "apps.tenants"
     label = "tenants"
     verbose_name = "Empresas (Tenants)"
+
+    def ready(self):
+        from . import signals  # noqa: F401

@@ -1,0 +1,79 @@
+{% extends "layouts/app_shell.html" %}
+{% block page_title %}<span class="text-gray-300 dark:text-gray-700 mx-1">/</span><span class="text-gray-800 dark:text-gray-200 font-medium">Aparência</span>{% endblock %}
+{% block title %}Aparência · Syncora{% endblock %}
+{% block page %}
+<div class="max-w-2xl mx-auto py-10 px-4">
+  <h1 class="text-2xl font-semibold mb-1 text-gray-900 dark:text-gray-50" style="font-family:'Sora',sans-serif;">Aparência</h1>
+  <p class="text-sm text-gray-500 mb-6">Logo, cores e a tela de login com a marca da sua empresa.</p>
+
+  <form method="post" enctype="multipart/form-data" class="space-y-5">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div class="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
+      <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Logo</h2>
+      <div class="grid grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-medium mb-1.5 text-gray-600 dark:text-gray-400" for="{{ form.logo.id_for_label }}">Logo (fundo claro)</label>
+          {% if object.logo %}<img src="{{ object.logo.url }}" class="h-10 mb-2 object-contain" alt="">{% endif %}
+          {{ form.logo }}
+        </div>
+        <div>
+          <label class="block text-xs font-medium mb-1.5 text-gray-600 dark:text-gray-400" for="{{ form.logo_dark.id_for_label }}">Logo (fundo escuro)</label>
+          {% if object.logo_dark %}<img src="{{ object.logo_dark.url }}" class="h-10 mb-2 object-contain bg-gray-900 rounded px-1" alt="">{% endif %}
+          {{ form.logo_dark }}
+        </div>
+        <div>
+          <label class="block text-xs font-medium mb-1.5 text-gray-600 dark:text-gray-400" for="{{ form.favicon.id_for_label }}">Favicon</label>
+          {% if object.favicon %}<img src="{{ object.favicon.url }}" class="h-10 mb-2 object-contain" alt="">{% endif %}
+          {{ form.favicon }}
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
+      <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Cores</h2>
+      <div class="grid grid-cols-4 gap-4">
+        {% for field in form %}
+          {% if field.name|slice:":6" == "color_" %}
+          <div class="flex flex-col items-center gap-1.5">
+            {{ field }}
+            <label class="text-[11px] text-gray-500 text-center" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
+      <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Tema</h2>
+      <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300" for="{{ form.theme_mode.id_for_label }}">{{ form.theme_mode.label }}</label>
+      {{ form.theme_mode }}
+    </div>
+
+    <div class="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-4">
+      <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100">Tela de login</h2>
+      <div>
+        <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300" for="{{ form.login_background.id_for_label }}">Imagem de fundo</label>
+        {% if object.login_background %}<img src="{{ object.login_background.url }}" class="h-20 mb-2 object-cover rounded-lg" alt="">{% endif %}
+        {{ form.login_background }}
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300" for="{{ form.login_message.id_for_label }}">Mensagem de boas-vindas</label>
+        {{ form.login_message }}
+      </div>
+      <label class="flex items-center gap-2.5 text-sm text-gray-700 dark:text-gray-300">
+        {{ form.show_powered_by }}
+        Mostrar "powered by Syncora" no rodapé
+      </label>
+    </div>
+
+    <button type="submit" class="w-full rounded-xl text-white py-2.5 font-medium shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/30 transition-all" style="background:#3b5bff;">Salvar aparência</button>
+  </form>
+</div>
+<style type="text/tailwindcss">
+  input[type=text], input[type=file], textarea, select { @apply w-full rounded-xl border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100; }
+  input[type=color] { @apply w-11 h-11 rounded-full border border-gray-200 dark:border-gray-700 p-0.5 cursor-pointer; }
+  input[type=checkbox] { @apply w-4 h-4 rounded border-gray-300; }
+</style>
+{% endblock %}
