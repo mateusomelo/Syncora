@@ -1,9 +1,11 @@
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import login as auth_login
 from django.core.mail import send_mail
 from django.db import transaction
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.views.generic import FormView, TemplateView
+from django.views.generic import FormView
 
 from apps.accounts.models import Membership, User
 from apps.branding.models import BrandingSettings
@@ -43,18 +45,15 @@ class SignupView(FormView):
             [user.email],
         )
 
-        self._subdomain = tenant.subdomain
+        # Sem domínio próprio configurado, não há subdomínio de verdade pra
+        # mandar a pessoa acessar depois -- loga direto aqui e já marca essa
+        # empresa como a ativa na sessão (mesmo mecanismo do login normal em
+        # apps/authentication/views.py:LoginView).
+        auth_login(self.request, user, backend="apps.accounts.backends.TenantAwareBackend")
+        self.request.session["active_tenant_id"] = str(tenant.id)
+        messages.success(self.request, f"Empresa \"{tenant.name}\" criada! Bem-vindo ao Syncora.")
+
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse("onboarding:signup_success") + f"?subdomain={self._subdomain}"
-
-
-class SignupSuccessView(TemplateView):
-    template_name = "onboarding/signup_success.html"
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx["subdomain"] = self.request.GET.get("subdomain", "")
-        ctx["tenant_base_domain"] = settings.TENANT_BASE_DOMAIN
-        return ctx
+        return reverse("dashboard:home")

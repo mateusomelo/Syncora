@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Escolher empresa · Syncora{% endblock %}
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-6 py-16 bg-gray-50">
+  <div class="w-full max-w-sm">
+    <div class="flex items-center gap-2.5 mb-8 justify-center">
+      <span class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm" style="background:#12141a; font-family:'Sora',sans-serif;">S</span>
+      <span class="text-gray-900 font-semibold text-[15px]" style="font-family:'Sora',sans-serif;">Syncora</span>
+    </div>
+
+    <h2 class="text-[22px] font-semibold text-gray-900 mb-1.5 text-center" style="font-family:'Sora',sans-serif;">Qual empresa você quer acessar?</h2>
+    <p class="text-sm text-gray-500 mb-8 text-center">Sua conta tem acesso a mais de uma empresa.</p>
+
+    <div class="space-y-2.5">
+      {% for membership in memberships %}
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="membership_id" value="{{ membership.pk }}">
+        <button type="submit" class="w-full flex items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3.5 text-left hover:border-gray-300 hover:shadow-sm transition-all">
+          <span>
+            <span class="block text-sm font-medium text-gray-900">{{ membership.tenant.name }}</span>
+            <span class="block text-xs text-gray-400">{{ membership.get_role_display }}</span>
+          </span>
+          <span style="color:#3b5bff;">→</span>
+        </button>
+      </form>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

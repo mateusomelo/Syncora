@@ -25,6 +25,9 @@ def shell(request):
         Membership.objects.filter(tenant=tenant, user=user, is_active=True)
         .first()
     )
+    has_other_tenants = (
+        Membership.objects.filter(user=user, is_active=True).exclude(tenant=tenant).exists()
+    )
     professional = getattr(user, "professional_profiles", None)
     current_professional = professional.filter(tenant=tenant).first() if professional else None
 
@@ -52,6 +55,7 @@ def shell(request):
 
     return {
         "current_membership": membership,
+        "has_other_tenants": has_other_tenants,
         "current_professional": current_professional,
         "upcoming_appointments": upcoming_appointments,
         "nav_sections": nav_sections,

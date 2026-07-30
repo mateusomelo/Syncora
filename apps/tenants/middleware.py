@@ -58,17 +58,22 @@ class TenantResolutionMiddleware:
         )
 
         if is_admin_host:
-            # No domínio administrativo (ou bypass local), só existe tenant se
-            # o Super Admin estiver em uma sessão de impersonação ativa —
-            # iniciada e auditada por apps.platform_admin.
-            tenant = self._resolve_impersonated_tenant(request)
+            # No domínio administrativo (ou bypass local, ou o único domínio
+            # real disponível antes de comprar um domínio próprio), o tenant
+            # só vem da sessão: ou uma impersonação de Super Admin (banner
+            # "atuando como suporte"), ou a empresa que o próprio usuário
+            # escolheu no login (sem banner nenhum -- é o uso normal dele,
+            # só que sem subdomínio próprio ainda). Ver
+            # apps/authentication/views.py:LoginView/ChooseTenantView.
+            tenant, is_impersonating = self._resolve_session_tenant(request)
         else:
             tenant = self._resolve_tenant(host)
             if tenant is None or not tenant.is_operational:
                 raise Http404("Empresa não encontrada ou inativa para este domínio.")
+            is_impersonating = False
 
         request.tenant = tenant
-        request.is_impersonating = is_admin_host and tenant is not None
+        request.is_impersonating = is_impersonating
 
         if tenant is None:
             return self.get_response(request)
@@ -79,11 +84,23 @@ class TenantResolutionMiddleware:
         finally:
             reset_current_tenant_id(token)
 
-    def _resolve_impersonated_tenant(self, request):
-        tenant_id = request.session.get("impersonating_tenant_id")
-        if not tenant_id:
-            return None
-        return Tenant.objects.filter(id=tenant_id).first()
+    def _resolve_session_tenant(self, request):
+        impersonating_id = request.session.get("impersonating_tenant_id")
+        if impersonating_id:
+            # Suporte pode acessar mesmo uma empresa suspensa (é o cenário
+            # mais comum de precisar impersonar), por isso sem checar
+            # is_operational aqui -- diferente do active_tenant_id abaixo.
+            tenant = Tenant.objects.filter(id=impersonating_id).first()
+            if tenant is not None:
+                return tenant, True
+
+        active_id = request.session.get("active_tenant_id")
+        if active_id:
+            tenant = Tenant.objects.filter(id=active_id).first()
+            if tenant is not None and tenant.is_operational:
+                return tenant, False
+
+        return None, False
 
     def _resolve_tenant(self, host):
         cache_key = f"tenant_resolution:{host}"

@@ -92,6 +92,12 @@
               <p class="text-xs text-gray-400 truncate">{{ request.user.email }}</p>
               {% if current_membership %}<p class="mt-1 inline-block text-[11px] font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded px-1.5 py-0.5">{{ current_membership.get_role_display }}</p>{% endif %}
             </div>
+            {% if has_other_tenants %}
+            <a href="{% url 'authentication:choose_tenant' %}" class="flex items-center gap-2.5 px-2.5 py-2 mx-1.5 mt-1.5 rounded-lg text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+              {% icon "chevrons-up-down" "w-4 h-4" %}
+              Trocar de empresa
+            </a>
+            {% endif %}
             <form method="post" action="{% url 'authentication:logout' %}" class="p-1.5">
               {% csrf_token %}
               <button type="submit" class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
