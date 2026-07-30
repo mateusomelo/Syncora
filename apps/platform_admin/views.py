@@ -6,10 +6,11 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.html import format_html
 from django.views import View
-from django.views.generic import CreateView, DetailView, ListView, TemplateView, UpdateView
+from django.views.generic import CreateView, DetailView, FormView, ListView, TemplateView, UpdateView
 
 from apps.accounts.forms import MembershipInviteForm
-from apps.accounts.models import Membership
+from apps.accounts.models import Membership, User
+from apps.accounts.views import _is_last_active_admin
 from apps.audit.models import AuditLog, ImpersonationSession
 from apps.branding.models import BrandingSettings
 from apps.scheduling.models import Appointment
@@ -17,7 +18,7 @@ from apps.tenants.models import FeatureFlag, Tenant
 from apps.verticals.barber.models import ClientPackage
 from apps.verticals.psychology.models import ClinicalRecord
 
-from .forms import TenantForm
+from .forms import PlatformAdminInviteForm, TenantForm
 
 
 def _jsonable(data):
@@ -119,6 +120,7 @@ class TenantDetailView(PlatformAdminRequiredMixin, DetailView):
             "user"
         ).order_by("-role", "user__email")
         ctx["membership_form"] = MembershipInviteForm(tenant=self.object)
+        ctx["role_choices"] = Membership.Role.choices
         return ctx
 
 
@@ -149,6 +151,60 @@ class TenantUserCreateView(PlatformAdminRequiredMixin, View):
             )
         else:
             messages.success(request, f"{membership.user.email} agora tem acesso a {tenant.name}.")
+        return redirect("platform_admin:tenant_detail", pk=pk)
+
+
+class TenantUserRoleUpdateView(PlatformAdminRequiredMixin, View):
+    def post(self, request, pk, membership_pk):
+        tenant = get_object_or_404(Tenant.all_objects, pk=pk)
+        membership = get_object_or_404(Membership, pk=membership_pk, tenant=tenant)
+        new_role = request.POST.get("role")
+        if new_role not in Membership.Role.values:
+            messages.error(request, "Papel inválido.")
+            return redirect("platform_admin:tenant_detail", pk=pk)
+        if _is_last_active_admin(membership) and new_role != Membership.Role.ADMIN_EMPRESA:
+            messages.error(request, "Essa é a única pessoa administradora da empresa — mude o papel de outra pessoa primeiro.")
+            return redirect("platform_admin:tenant_detail", pk=pk)
+        membership.role = new_role
+        membership.save(update_fields=["role"])
+        _log(request, "tenant.user.role_update", tenant, changes={"email": membership.user.email, "role": new_role})
+        messages.success(request, f"Papel de {membership.user.email} atualizado.")
+        return redirect("platform_admin:tenant_detail", pk=pk)
+
+
+class TenantUserToggleActiveView(PlatformAdminRequiredMixin, View):
+    def post(self, request, pk, membership_pk):
+        tenant = get_object_or_404(Tenant.all_objects, pk=pk)
+        membership = get_object_or_404(Membership, pk=membership_pk, tenant=tenant)
+        if membership.is_active and _is_last_active_admin(membership):
+            messages.error(request, "Essa é a única pessoa administradora ativa da empresa — não é possível desativá-la.")
+            return redirect("platform_admin:tenant_detail", pk=pk)
+        membership.is_active = not membership.is_active
+        membership.save(update_fields=["is_active"])
+        _log(
+            request,
+            "tenant.user.toggle_active",
+            tenant,
+            changes={"email": membership.user.email, "is_active": membership.is_active},
+        )
+        messages.success(
+            request,
+            f"{membership.user.email} foi {'reativado' if membership.is_active else 'desativado'}.",
+        )
+        return redirect("platform_admin:tenant_detail", pk=pk)
+
+
+class TenantUserDeleteView(PlatformAdminRequiredMixin, View):
+    def post(self, request, pk, membership_pk):
+        tenant = get_object_or_404(Tenant.all_objects, pk=pk)
+        membership = get_object_or_404(Membership, pk=membership_pk, tenant=tenant)
+        if _is_last_active_admin(membership):
+            messages.error(request, "Essa é a única pessoa administradora ativa da empresa — não é possível removê-la.")
+            return redirect("platform_admin:tenant_detail", pk=pk)
+        email = membership.user.email
+        membership.delete()
+        _log(request, "tenant.user.remove", tenant, changes={"email": email})
+        messages.success(request, f"{email} não tem mais acesso à empresa.")
         return redirect("platform_admin:tenant_detail", pk=pk)
 
 
@@ -253,3 +309,54 @@ class ImpersonationActiveView(PlatformAdminRequiredMixin, TemplateView):
         ctx = super().get_context_data(**kwargs)
         ctx["tenant"] = self.request.tenant
         return ctx
+
+
+class PlatformAdminUserListView(PlatformAdminRequiredMixin, ListView):
+    template_name = "platform_admin/admin_user_list.html"
+    context_object_name = "admins"
+
+    def get_queryset(self):
+        return User.objects.filter(is_platform_admin=True).order_by("first_name", "email")
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["invite_form"] = PlatformAdminInviteForm()
+        ctx["generated"] = self.request.session.pop("platform_admin_generated_password", None)
+        return ctx
+
+
+class PlatformAdminUserCreateView(PlatformAdminRequiredMixin, FormView):
+    form_class = PlatformAdminInviteForm
+    template_name = "platform_admin/admin_user_list.html"
+    success_url = reverse_lazy("platform_admin:admin_user_list")
+
+    def form_invalid(self, form):
+        errors = " ".join(f"{f}: {', '.join(e)}" for f, e in form.errors.items())
+        messages.error(self.request, f"Não deu pra criar o acesso — {errors}")
+        return redirect(self.success_url)
+
+    def form_valid(self, form):
+        user, password = form.save()
+        _log(self.request, "platform_admin.create", None, changes={"email": user.email})
+        self.request.session["platform_admin_generated_password"] = {
+            "email": user.email,
+            "password": password,
+        }
+        messages.success(self.request, f"{user.email} agora é Super Admin.")
+        return redirect(self.success_url)
+
+
+class PlatformAdminUserRevokeView(PlatformAdminRequiredMixin, View):
+    def post(self, request, pk):
+        target = get_object_or_404(User, pk=pk, is_platform_admin=True)
+        if target.pk == request.user.pk:
+            messages.error(request, "Você não pode revogar o próprio acesso.")
+            return redirect("platform_admin:admin_user_list")
+        if User.objects.filter(is_platform_admin=True).exclude(pk=target.pk).count() == 0:
+            messages.error(request, "Essa é a única conta de Super Admin — não é possível revogar.")
+            return redirect("platform_admin:admin_user_list")
+        target.is_platform_admin = False
+        target.save(update_fields=["is_platform_admin"])
+        _log(request, "platform_admin.revoke", None, changes={"email": target.email})
+        messages.success(request, f"Acesso de Super Admin de {target.email} revogado.")
+        return redirect("platform_admin:admin_user_list")

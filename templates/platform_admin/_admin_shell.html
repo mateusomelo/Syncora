@@ -4,11 +4,17 @@
 <div class="min-h-screen bg-gray-50">
   <header class="sticky top-0 z-30 border-b border-gray-200 bg-white/85 backdrop-blur">
     <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-      <a href="{% url 'platform_admin:tenant_list' %}" class="flex items-center gap-2.5">
-        <span class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm" style="background:#12141a; font-family:'Sora',sans-serif;">S</span>
-        <span class="font-semibold text-[15px] text-gray-900" style="font-family:'Sora',sans-serif;">Syncora</span>
-        <span class="text-xs font-medium text-gray-400 bg-gray-100 rounded-full px-2 py-0.5 ml-1">Super Admin</span>
-      </a>
+      <div class="flex items-center gap-8">
+        <a href="{% url 'platform_admin:tenant_list' %}" class="flex items-center gap-2.5">
+          <span class="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm" style="background:#12141a; font-family:'Sora',sans-serif;">S</span>
+          <span class="font-semibold text-[15px] text-gray-900" style="font-family:'Sora',sans-serif;">Syncora</span>
+          <span class="text-xs font-medium text-gray-400 bg-gray-100 rounded-full px-2 py-0.5 ml-1">Super Admin</span>
+        </a>
+        <nav class="flex items-center gap-5 text-sm font-medium text-gray-500">
+          <a href="{% url 'platform_admin:tenant_list' %}" class="hover:text-gray-900 transition-colors">Empresas</a>
+          <a href="{% url 'platform_admin:admin_user_list' %}" class="hover:text-gray-900 transition-colors">Administradores</a>
+        </nav>
+      </div>
       <div class="flex items-center gap-4" x-data="{ open: false }" @click.outside="open = false">
         <button @click="open = !open" class="w-8 h-8 rounded-full text-white text-xs font-semibold flex items-center justify-center" style="background:#3b5bff;">
           {{ request.user.email|slice:":1"|upper }}

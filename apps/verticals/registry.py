@@ -10,11 +10,36 @@ from django.http import Http404
 
 from apps.tenants.models import FeatureFlag
 
+# Tema fixo por segmento (cores só -- ver apps/branding/context_processors.py).
+# A empresa não escolhe essas cores; só a logo continua editável em
+# Configurações > Aparência. Quando nenhum módulo vertical está ativo, usa
+# DEFAULT_THEME (a mesma identidade do site público: ink + azul #3b5bff).
+DEFAULT_THEME = {
+    "color_primary": "#3b5bff",
+    "color_secondary": "#6b7280",
+    "color_button": "#3b5bff",
+    "color_link": "#3b5bff",
+    "color_sidebar": "#12141a",
+    "color_topbar": "#ffffff",
+    "color_card": "#ffffff",
+    "color_icons": "#3b5bff",
+}
+
 VERTICALS = {
     "barbearia": {
         "label": "Barbearia",
         "icon": "scissors",
         "flag_key": FeatureFlag.Key.BARBEARIA,
+        "theme": {
+            "color_primary": "#b45309",
+            "color_secondary": "#78716c",
+            "color_button": "#b45309",
+            "color_link": "#b45309",
+            "color_sidebar": "#1c1917",
+            "color_topbar": "#ffffff",
+            "color_card": "#ffffff",
+            "color_icons": "#b45309",
+        },
         "menu_items": [
             {"label": "Pacotes", "url_name": "barber:package_list", "icon": "tag"},
             {"label": "Produtos", "url_name": "barber:product_list", "icon": "tag"},
@@ -25,6 +50,16 @@ VERTICALS = {
         "label": "Odontologia",
         "icon": "tooth",
         "flag_key": FeatureFlag.Key.ODONTOGRAMA,
+        "theme": {
+            "color_primary": "#0284c7",
+            "color_secondary": "#64748b",
+            "color_button": "#0284c7",
+            "color_link": "#0284c7",
+            "color_sidebar": "#0c4a6e",
+            "color_topbar": "#ffffff",
+            "color_card": "#ffffff",
+            "color_icons": "#0284c7",
+        },
         "menu_items": [
             {"label": "Pacientes", "url_name": "dentistry:patient_list", "icon": "users"},
             {"label": "Orçamentos", "url_name": "dentistry:budget_list", "icon": "receipt"},
@@ -34,6 +69,16 @@ VERTICALS = {
         "label": "Psicologia",
         "icon": "chat-heart",
         "flag_key": FeatureFlag.Key.PSICOLOGIA,
+        "theme": {
+            "color_primary": "#0d9488",
+            "color_secondary": "#6b7280",
+            "color_button": "#0d9488",
+            "color_link": "#0d9488",
+            "color_sidebar": "#134e4a",
+            "color_topbar": "#ffffff",
+            "color_card": "#ffffff",
+            "color_icons": "#0d9488",
+        },
         "menu_items": [
             {"label": "Prontuários", "url_name": "psychology:clinical_record_list", "icon": "clipboard"},
         ],
@@ -55,6 +100,19 @@ def get_active_menu_items(tenant):
     for key in get_active_verticals(tenant):
         items.extend(VERTICALS[key]["menu_items"])
     return items
+
+
+def get_active_theme(tenant):
+    """Tema de cor da empresa, decidido 100% pelo módulo vertical ativo --
+    não é escolha da empresa (ver Configurações > Aparência, que só edita
+    logo). Com mais de um módulo ativo ao mesmo tempo, vale a ordem de
+    VERTICALS acima (barbearia > odontologia > psicologia); sem nenhum
+    módulo, cai no DEFAULT_THEME (a mesma identidade do site público)."""
+    active = get_active_verticals(tenant)
+    for key in VERTICALS:
+        if key in active:
+            return VERTICALS[key]["theme"]
+    return DEFAULT_THEME
 
 
 def get_active_verticals_detail(tenant):

@@ -78,15 +78,32 @@
     {% if memberships %}
     <div class="divide-y divide-gray-100 mb-5 -mx-2">
       {% for membership in memberships %}
-      <div class="flex items-center justify-between px-2 py-2.5">
-        <div>
-          <p class="text-sm font-medium text-gray-900">{{ membership.user.get_full_name|default:membership.user.email }}</p>
-          <p class="text-xs text-gray-400">{{ membership.user.email }}</p>
+      <div class="flex items-center justify-between gap-3 px-2 py-2.5">
+        <div class="min-w-0">
+          <p class="text-sm font-medium text-gray-900 truncate">{{ membership.user.get_full_name|default:membership.user.email }}</p>
+          <p class="text-xs text-gray-400 truncate">{{ membership.user.email }}</p>
         </div>
-        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium {% if membership.is_active %}bg-emerald-50 text-emerald-700{% else %}bg-gray-100 text-gray-500{% endif %}">
-          <span class="w-1.5 h-1.5 rounded-full {% if membership.is_active %}bg-emerald-500{% else %}bg-gray-400{% endif %}"></span>
-          {{ membership.get_role_display }}
-        </span>
+        <div class="flex items-center gap-2 shrink-0">
+          <form method="post" action="{% url 'platform_admin:tenant_user_role' tenant.pk membership.pk %}">
+            {% csrf_token %}
+            <select name="role" onchange="this.form.submit()" class="text-xs rounded-lg border border-gray-200 px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-100">
+              {% for value, label in role_choices %}
+              <option value="{{ value }}" {% if membership.role == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </form>
+          <form method="post" action="{% url 'platform_admin:tenant_user_toggle_active' tenant.pk membership.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium {% if membership.is_active %}bg-emerald-50 text-emerald-700{% else %}bg-gray-100 text-gray-500{% endif %}">
+              <span class="w-1.5 h-1.5 rounded-full {% if membership.is_active %}bg-emerald-500{% else %}bg-gray-400{% endif %}"></span>
+              {% if membership.is_active %}Ativo{% else %}Inativo{% endif %}
+            </button>
+          </form>
+          <form method="post" action="{% url 'platform_admin:tenant_user_delete' tenant.pk membership.pk %}" onsubmit="return confirm('Remover {{ membership.user.email|escapejs }} dessa empresa?');">
+            {% csrf_token %}
+            <button type="submit" class="text-xs font-medium text-gray-400 hover:text-red-600 transition-colors">Remover</button>
+          </form>
+        </div>
       </div>
       {% endfor %}
     </div>

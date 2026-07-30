@@ -1,0 +1,95 @@
+{% extends "platform_admin/_admin_shell.html" %}
+{% block title %}Administradores · Super Admin · Syncora{% endblock %}
+{% block admin_content %}
+<div class="flex items-center justify-between mb-8">
+  <div>
+    <h1 class="text-[26px] font-semibold text-gray-900" style="font-family:'Sora',sans-serif;">Administradores da plataforma</h1>
+    <p class="text-sm text-gray-500 mt-1">{{ admins|length }} pessoa{{ admins|length|pluralize }} com acesso ao Super Admin</p>
+  </div>
+</div>
+
+{% if generated %}
+<div x-data="{ show: true, copied: false }" x-show="show" class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+  <div class="flex items-start justify-between gap-4">
+    <div>
+      <p class="text-sm font-semibold text-amber-900">Senha gerada para {{ generated.email }}</p>
+      <p class="text-xs text-amber-700/80 mt-0.5 mb-3">Copie agora — essa senha não vai aparecer de novo.</p>
+      <div class="flex items-center gap-2">
+        <code class="text-sm font-mono bg-white border border-amber-200 rounded-lg px-3 py-1.5 text-amber-900">{{ generated.password }}</code>
+        <button type="button" @click="navigator.clipboard.writeText('{{ generated.password|escapejs }}'); copied = true; setTimeout(() => copied = false, 1500)"
+                class="text-xs font-medium rounded-lg border border-amber-300 px-3 py-1.5 text-amber-800 hover:bg-amber-100 transition-colors">
+          <span x-show="!copied">Copiar</span><span x-show="copied" style="display:none;">Copiado!</span>
+        </button>
+      </div>
+    </div>
+    <button @click="show = false" class="text-amber-400 hover:text-amber-600">✕</button>
+  </div>
+</div>
+{% endif %}
+
+<div class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm mb-6">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50/80 text-left text-gray-500 text-xs uppercase tracking-wide">
+      <tr>
+        <th class="px-5 py-3.5 font-medium">Nome</th>
+        <th class="px-5 py-3.5 font-medium">E-mail</th>
+        <th class="px-5 py-3.5"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for admin in admins %}
+      <tr class="hover:bg-gray-50/60 transition-colors">
+        <td class="px-5 py-4 font-medium text-gray-900">{{ admin.get_full_name|default:"—" }}{% if admin.pk == request.user.pk %} <span class="text-xs font-normal text-gray-400">(você)</span>{% endif %}</td>
+        <td class="px-5 py-4 text-gray-500">{{ admin.email }}</td>
+        <td class="px-5 py-4 text-right">
+          {% if admin.pk != request.user.pk %}
+          <form method="post" action="{% url 'platform_admin:admin_user_revoke' admin.pk %}" onsubmit="return confirm('Revogar o acesso de Super Admin de {{ admin.email|escapejs }}?');">
+            {% csrf_token %}
+            <button type="submit" class="text-sm font-medium text-gray-400 hover:text-red-600 transition-colors">Revogar</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="3" class="px-5 py-12 text-center text-gray-400">Nenhum administrador cadastrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+  <details class="group">
+    <summary class="cursor-pointer text-sm font-medium list-none flex items-center gap-1.5" style="color:#3b5bff;">
+      <span class="group-open:rotate-45 transition-transform">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+      </span>
+      Convidar Super Admin
+    </summary>
+    <form method="post" action="{% url 'platform_admin:admin_user_create' %}" class="mt-4 grid grid-cols-2 gap-3">
+      {% csrf_token %}
+      <div>
+        <label class="block text-xs font-medium mb-1 text-gray-600">{{ invite_form.first_name.label }}</label>
+        {{ invite_form.first_name }}
+      </div>
+      <div>
+        <label class="block text-xs font-medium mb-1 text-gray-600">{{ invite_form.last_name.label }}</label>
+        {{ invite_form.last_name }}
+      </div>
+      <div class="col-span-2">
+        <label class="block text-xs font-medium mb-1 text-gray-600">{{ invite_form.email.label }}</label>
+        {{ invite_form.email }}
+      </div>
+      <div class="col-span-2">
+        <label class="block text-xs font-medium mb-1 text-gray-600">{{ invite_form.password.label }}</label>
+        {{ invite_form.password }}
+        <p class="text-xs text-gray-400 mt-1">{{ invite_form.password.help_text }}</p>
+      </div>
+      <button type="submit" class="col-span-2 rounded-xl text-white py-2.5 text-sm font-medium mt-1" style="background:#3b5bff;">Criar acesso de Super Admin</button>
+    </form>
+  </details>
+</div>
+<style type="text/tailwindcss">
+  details input { @apply w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 bg-gray-50 transition-all; }
+  details input:focus { @apply outline-none bg-white; box-shadow: 0 0 0 3px rgba(59,91,255,.15); border-color: #3b5bff; }
+</style>
+{% endblock %}

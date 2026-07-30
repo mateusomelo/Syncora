@@ -14,6 +14,21 @@ urlpatterns = [
     path("tenants/<uuid:pk>/excluir/", views.TenantDeleteView.as_view(), name="tenant_delete"),
     path("tenants/<uuid:pk>/usuarios/novo/", views.TenantUserCreateView.as_view(), name="tenant_user_create"),
     path(
+        "tenants/<uuid:pk>/usuarios/<int:membership_pk>/papel/",
+        views.TenantUserRoleUpdateView.as_view(),
+        name="tenant_user_role",
+    ),
+    path(
+        "tenants/<uuid:pk>/usuarios/<int:membership_pk>/status/",
+        views.TenantUserToggleActiveView.as_view(),
+        name="tenant_user_toggle_active",
+    ),
+    path(
+        "tenants/<uuid:pk>/usuarios/<int:membership_pk>/remover/",
+        views.TenantUserDeleteView.as_view(),
+        name="tenant_user_delete",
+    ),
+    path(
         "tenants/<uuid:pk>/flags/<str:key>/toggle/",
         views.FeatureFlagToggleView.as_view(),
         name="feature_flag_toggle",
@@ -25,4 +40,7 @@ urlpatterns = [
     ),
     path("impersonacao/sair/", views.ImpersonationStopView.as_view(), name="impersonation_stop"),
     path("impersonacao/", views.ImpersonationActiveView.as_view(), name="impersonation_active"),
+    path("administradores/", views.PlatformAdminUserListView.as_view(), name="admin_user_list"),
+    path("administradores/novo/", views.PlatformAdminUserCreateView.as_view(), name="admin_user_create"),
+    path("administradores/<int:pk>/revogar/", views.PlatformAdminUserRevokeView.as_view(), name="admin_user_revoke"),
 ]
