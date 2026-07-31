@@ -1,14 +1,44 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" class="no-js">
 <head>
+<script>document.documentElement.classList.remove('no-js');</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Syncora — Agenda e gestão para barbearias, clínicas e consultórios</title>
 <meta name="description" content="O Syncora organiza agenda, clientes, financeiro e prontuário da sua barbearia, clínica odontológica ou consultório de psicologia — tudo num só lugar, com a marca do seu negócio.">
-<link rel="icon" href="data:,">
+<link rel="canonical" href="https://syncoraappp.netlify.app/">
+<meta name="theme-color" content="#12141a">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://syncoraappp.netlify.app/">
+<meta property="og:site_name" content="Syncora">
+<meta property="og:title" content="Syncora — Agenda e gestão para barbearias, clínicas e consultórios">
+<meta property="og:description" content="O Syncora organiza agenda, clientes, financeiro e prontuário da sua barbearia, clínica odontológica ou consultório de psicologia — tudo num só lugar, com a marca do seu negócio.">
+<meta property="og:image" content="https://syncoraappp.netlify.app/og-image.png">
+<meta property="og:image:width" content="2400">
+<meta property="og:image:height" content="1260">
+<meta property="og:locale" content="pt_BR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Syncora — Agenda e gestão para barbearias, clínicas e consultórios">
+<meta name="twitter:description" content="O Syncora organiza agenda, clientes, financeiro e prontuário da sua barbearia, clínica odontológica ou consultório de psicologia — tudo num só lugar, com a marca do seu negócio.">
+<meta name="twitter:image" content="https://syncoraappp.netlify.app/og-image.png">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%2312141a'/%3E%3Ctext x='16' y='22' font-family='Arial,sans-serif' font-weight='700' font-size='18' fill='%23fff' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Syncora",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
+  "description": "Sistema de agendamento e gestão para barbearias, clínicas odontológicas e consultórios de psicologia, com marca própria (white label).",
+  "url": "https://syncoraappp.netlify.app/",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BRL" }
+}
+</script>
 <style>
   :root {
     --ink: #12141a;
@@ -51,6 +81,10 @@
     .reveal-stagger.is-visible > *:nth-child(6) { animation-delay: .45s; }
     @keyframes revealItem { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
   }
+  /* Sem JS (bots simples, leitores de link do WhatsApp/redes sociais que não
+     rolam a página), o conteúdo abaixo da dobra tem que aparecer igual --
+     o reveal-on-scroll é só um enfeite pra quem realmente navega. */
+  .no-js .reveal, .no-js .reveal-stagger > * { opacity: 1 !important; transform: none !important; }
 
   header.top {
     position: sticky; top: 0; z-index: 40; backdrop-filter: blur(10px);
@@ -143,6 +177,12 @@
   .v-card { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 28px; transition: transform .2s, box-shadow .2s; }
   .v-card:hover { transform: translateY(-3px); box-shadow: 0 20px 40px -20px rgba(0,0,0,.15); }
   .v-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); display: flex; align-items: center; justify-content: center; margin-bottom: 18px; }
+  /* Cada módulo usa a mesma cor que ele já tem dentro do produto de verdade
+     (apps/verticals/registry.py) -- amarra a identidade visual do marketing
+     com a do app, em vez de repetir o azul genérico nos três. */
+  .v-card.barbearia .v-icon { background: rgba(180,83,9,.1); color: #b45309; }
+  .v-card.odontologia .v-icon { background: rgba(2,132,199,.1); color: #0284c7; }
+  .v-card.psicologia .v-icon { background: rgba(13,148,136,.1); color: #0d9488; }
   .v-card h3 { font-size: 17px; margin: 0 0 8px; font-weight: 600; }
   .v-card p { font-size: 14.5px; color: var(--text-dim); margin: 0; }
 
@@ -306,21 +346,21 @@
     <div class="kicker reveal">Módulos</div>
     <h2 class="section-title reveal">Feito pro seu tipo de negócio</h2>
     <div class="v-grid reveal-stagger reveal">
-      <div class="v-card">
+      <div class="v-card barbearia">
         <div class="v-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75a2.25 2.25 0 100 4.5 2.25 2.25 0 000-4.5zM6.75 15.75a2.25 2.25 0 100 4.5 2.25 2.25 0 000-4.5zM8.5 9.5L19.5 19.5M8.5 14.5L19.5 4.5"/></svg>
         </div>
         <h3>Barbearias e salões</h3>
         <p>Agenda por profissional, pacotes de sessões, controle de caixa e produtos.</p>
       </div>
-      <div class="v-card">
+      <div class="v-card odontologia">
         <div class="v-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
         <h3>Clínicas odontológicas</h3>
         <p>Odontograma, anamnese, orçamentos parcelados e prontuário por paciente.</p>
       </div>
-      <div class="v-card">
+      <div class="v-card psicologia">
         <div class="v-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12c0 4.556-4.03 8.25-9 8.25a9.76 9.76 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/></svg>
         </div>
@@ -457,6 +497,11 @@
       });
     }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
     els.forEach(function (el) { io.observe(el); });
+    // Rede de segurança: se algo não rolou a tela pra ver (bot, captura de
+    // tela, print pra PDF), garante que o conteúdo apareça mesmo assim.
+    setTimeout(function () {
+      els.forEach(function (el) { el.classList.add('is-visible'); });
+    }, 2500);
   } else {
     els.forEach(function (el) { el.classList.add('is-visible'); });
   }
