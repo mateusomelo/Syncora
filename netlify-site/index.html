@@ -174,12 +174,19 @@
 
   section.verticals { padding: 108px 0 12px; }
   .v-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-  .v-card { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 28px; transition: transform .2s, box-shadow .2s; }
+  .v-card { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; transition: transform .2s, box-shadow .2s; }
   .v-card:hover { transform: translateY(-3px); box-shadow: 0 20px 40px -20px rgba(0,0,0,.15); }
-  .v-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); display: flex; align-items: center; justify-content: center; margin-bottom: 18px; }
-  /* Cada módulo usa a mesma cor que ele já tem dentro do produto de verdade
-     (apps/verticals/registry.py) -- amarra a identidade visual do marketing
-     com a do app, em vez de repetir o azul genérico nos três. */
+  /* Ilustração de cada módulo -- cena mini-produto (não foto genérica de
+     banco de imagem) reaproveitando o mesmo estilo do mockup do hero, só que
+     temática por vertical. Fundo com a cor real desse módulo dentro do
+     produto (apps/verticals/registry.py), pra amarrar marketing com o app. */
+  .v-visual { height: 152px; position: relative; overflow: hidden; }
+  .v-visual svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .v-card.barbearia .v-visual { background: linear-gradient(160deg, #2a2320, #1c1917); }
+  .v-card.odontologia .v-visual { background: linear-gradient(160deg, #0e3a56, #0c4a6e); }
+  .v-card.psicologia .v-visual { background: linear-gradient(160deg, #103f3c, #134e4a); }
+  .v-body { padding: 24px 28px 28px; }
+  .v-icon { width: 40px; height: 40px; border-radius: 11px; background: var(--accent-soft); color: var(--accent); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
   .v-card.barbearia .v-icon { background: rgba(180,83,9,.1); color: #b45309; }
   .v-card.odontologia .v-icon { background: rgba(2,132,199,.1); color: #0284c7; }
   .v-card.psicologia .v-icon { background: rgba(13,148,136,.1); color: #0d9488; }
@@ -347,25 +354,131 @@
     <h2 class="section-title reveal">Feito pro seu tipo de negócio</h2>
     <div class="v-grid reveal-stagger reveal">
       <div class="v-card barbearia">
-        <div class="v-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75a2.25 2.25 0 100 4.5 2.25 2.25 0 000-4.5zM6.75 15.75a2.25 2.25 0 100 4.5 2.25 2.25 0 000-4.5zM8.5 9.5L19.5 19.5M8.5 14.5L19.5 4.5"/></svg>
+        <div class="v-visual">
+          <svg viewBox="0 0 400 152" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="glow-barb" cx="28%" cy="30%" r="65%">
+                <stop offset="0%" stop-color="#b45309" stop-opacity=".4"/>
+                <stop offset="100%" stop-color="#b45309" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect width="400" height="152" fill="url(#glow-barb)"/>
+            <g fill="#fff" opacity=".07">
+              <circle cx="24" cy="18" r="1.4"/><circle cx="52" cy="30" r="1.4"/><circle cx="20" cy="120" r="1.4"/>
+              <circle cx="370" cy="24" r="1.4"/><circle cx="340" cy="132" r="1.4"/><circle cx="380" cy="90" r="1.4"/>
+            </g>
+            <g transform="translate(58,66)">
+              <circle r="34" fill="#b45309"/>
+              <g transform="translate(-11,-11)" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="4.5" cy="4.5" r="2.6"/><circle cx="4.5" cy="17.5" r="2.6"/>
+                <path d="M6.8 6.5L20 19.5M6.8 15.5L20 2.5"/>
+              </g>
+            </g>
+            <g transform="translate(146,20)">
+              <rect width="228" height="104" rx="12" fill="#fff"/>
+              <text x="16" y="25" font-family="Sora, sans-serif" font-weight="700" font-size="12" fill="#1c1917">Agenda de hoje</text>
+              <line x1="16" y1="35" x2="212" y2="35" stroke="#e9eaed"/>
+              <circle cx="22" cy="53" r="3" fill="#b45309"/>
+              <text x="34" y="57" font-family="-apple-system,sans-serif" font-size="11.5" fill="#374151">09:00 · Corte + Barba</text>
+              <circle cx="22" cy="77" r="3" fill="#b45309"/>
+              <text x="34" y="81" font-family="-apple-system,sans-serif" font-size="11.5" fill="#374151">10:30 · Barba</text>
+            </g>
+          </svg>
         </div>
-        <h3>Barbearias e salões</h3>
-        <p>Agenda por profissional, pacotes de sessões, controle de caixa e produtos.</p>
+        <div class="v-body">
+          <div class="v-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75a2.25 2.25 0 100 4.5 2.25 2.25 0 000-4.5zM6.75 15.75a2.25 2.25 0 100 4.5 2.25 2.25 0 000-4.5zM8.5 9.5L19.5 19.5M8.5 14.5L19.5 4.5"/></svg>
+          </div>
+          <h3>Barbearias e salões</h3>
+          <p>Agenda por profissional, pacotes de sessões, controle de caixa e produtos.</p>
+        </div>
       </div>
       <div class="v-card odontologia">
-        <div class="v-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <div class="v-visual">
+          <svg viewBox="0 0 400 152" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="glow-odon" cx="28%" cy="30%" r="65%">
+                <stop offset="0%" stop-color="#0284c7" stop-opacity=".4"/>
+                <stop offset="100%" stop-color="#0284c7" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect width="400" height="152" fill="url(#glow-odon)"/>
+            <g fill="#fff" opacity=".07">
+              <circle cx="24" cy="18" r="1.4"/><circle cx="52" cy="30" r="1.4"/><circle cx="20" cy="120" r="1.4"/>
+              <circle cx="370" cy="24" r="1.4"/><circle cx="340" cy="132" r="1.4"/><circle cx="380" cy="90" r="1.4"/>
+            </g>
+            <g transform="translate(58,66)">
+              <circle r="34" fill="#0284c7"/>
+              <path transform="translate(-9,-10) scale(0.83)" stroke="#fff" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round" d="M9 4.5c-2.5 0-4.5 1.8-4.5 4.6 0 2.6 1.1 4.9 1.6 7.6.3 1.7.6 3.3 1.9 3.3 1.5 0 1.3-2.6 2-4.9.3-1 .7-1.8 1.5-1.8s1.2.8 1.5 1.8c.7 2.3.5 4.9 2 4.9 1.3 0 1.6-1.6 1.9-3.3.5-2.7 1.6-5 1.6-7.6 0-2.8-2-4.6-4.5-4.6-1 0-1.7.4-2.5.4s-1.5-.4-2.5-.4z"/>
+            </g>
+            <g transform="translate(146,20)">
+              <rect width="228" height="104" rx="12" fill="#fff"/>
+              <text x="16" y="25" font-family="Sora, sans-serif" font-weight="700" font-size="12" fill="#0c4a6e">Odontograma</text>
+              <g transform="translate(16,36)">
+                <!-- grade de dentes: 8 colunas x 2 linhas, um dente marcado -->
+                <g fill="#dbeafe">
+                  <rect x="0" y="0" width="12" height="12" rx="3"/><rect x="16" y="0" width="12" height="12" rx="3"/>
+                  <rect x="32" y="0" width="12" height="12" rx="3"/><rect x="48" y="0" width="12" height="12" rx="3"/>
+                  <rect x="64" y="0" width="12" height="12" rx="3"/><rect x="80" y="0" width="12" height="12" rx="3"/>
+                  <rect x="96" y="0" width="12" height="12" rx="3"/><rect x="112" y="0" width="12" height="12" rx="3"/>
+                  <rect x="0" y="16" width="12" height="12" rx="3"/><rect x="16" y="16" width="12" height="12" rx="3"/>
+                  <rect x="32" y="16" width="12" height="12" rx="3"/><rect x="48" y="16" width="12" height="12" rx="3"/>
+                  <rect x="80" y="16" width="12" height="12" rx="3"/><rect x="96" y="16" width="12" height="12" rx="3"/>
+                  <rect x="112" y="16" width="12" height="12" rx="3"/>
+                </g>
+                <rect x="64" y="16" width="12" height="12" rx="3" fill="#0284c7"/>
+                <text x="0" y="46" font-family="-apple-system,sans-serif" font-size="11" fill="#374151">Orçamento: R$ 450 · 3x</text>
+              </g>
+            </g>
+          </svg>
         </div>
-        <h3>Clínicas odontológicas</h3>
-        <p>Odontograma, anamnese, orçamentos parcelados e prontuário por paciente.</p>
+        <div class="v-body">
+          <div class="v-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <h3>Clínicas odontológicas</h3>
+          <p>Odontograma, anamnese, orçamentos parcelados e prontuário por paciente.</p>
+        </div>
       </div>
       <div class="v-card psicologia">
-        <div class="v-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12c0 4.556-4.03 8.25-9 8.25a9.76 9.76 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/></svg>
+        <div class="v-visual">
+          <svg viewBox="0 0 400 152" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="glow-psi" cx="28%" cy="30%" r="65%">
+                <stop offset="0%" stop-color="#0d9488" stop-opacity=".4"/>
+                <stop offset="100%" stop-color="#0d9488" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect width="400" height="152" fill="url(#glow-psi)"/>
+            <g fill="#fff" opacity=".07">
+              <circle cx="24" cy="18" r="1.4"/><circle cx="52" cy="30" r="1.4"/><circle cx="20" cy="120" r="1.4"/>
+              <circle cx="370" cy="24" r="1.4"/><circle cx="340" cy="132" r="1.4"/><circle cx="380" cy="90" r="1.4"/>
+            </g>
+            <g transform="translate(58,66)">
+              <circle r="34" fill="#0d9488"/>
+              <path transform="translate(-10,-10) scale(0.83)" stroke="#fff" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round" d="M21 12c0 4.556-4.03 8.25-9 8.25a9.76 9.76 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/>
+            </g>
+            <g transform="translate(146,20)">
+              <rect width="228" height="104" rx="12" fill="#fff"/>
+              <text x="16" y="25" font-family="Sora, sans-serif" font-weight="700" font-size="12" fill="#134e4a">Prontuário</text>
+              <g transform="translate(194,10)" stroke="#134e4a" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="-6" y="0" width="12" height="9" rx="2"/>
+                <path d="M-4 0v-3a4 4 0 018 0v3"/>
+              </g>
+              <rect x="16" y="38" width="122" height="22" rx="11" fill="#ccfbf1"/>
+              <text x="26" y="53" font-family="-apple-system,sans-serif" font-size="10.5" fill="#134e4a">Como você está essa semana?</text>
+              <rect x="72" y="68" width="140" height="22" rx="11" fill="#0d9488"/>
+              <text x="82" y="83" font-family="-apple-system,sans-serif" font-size="10.5" fill="#fff">Foi um pouco difícil...</text>
+            </g>
+          </svg>
         </div>
-        <h3>Psicologia</h3>
-        <p>Prontuário sigiloso com controle de acesso restrito ao profissional responsável.</p>
+        <div class="v-body">
+          <div class="v-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12c0 4.556-4.03 8.25-9 8.25a9.76 9.76 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/></svg>
+          </div>
+          <h3>Psicologia</h3>
+          <p>Prontuário sigiloso com controle de acesso restrito ao profissional responsável.</p>
+        </div>
       </div>
     </div>
   </div>
