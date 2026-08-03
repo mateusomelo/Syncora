@@ -76,6 +76,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    "apps.authentication.middleware.IdleSessionTimeoutMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
     "axes.middleware.AxesMiddleware",
@@ -142,6 +143,14 @@ AUTHENTICATION_BACKENDS = [
 LOGIN_URL = "authentication:login"
 LOGIN_REDIRECT_URL = "dashboard:home"
 LOGOUT_REDIRECT_URL = "authentication:login"
+
+# Django, por padrão, não desloga por inatividade -- o cookie de sessão é
+# "rolante": qualquer request autenticada recalcula o vencimento pra daqui a
+# SESSION_COOKIE_AGE (2 semanas), então uma pessoa que visita o site pelo
+# menos 1x a cada 2 semanas nunca é deslogada de verdade. Corrigido por
+# apps/authentication/middleware.py:IdleSessionTimeoutMiddleware, que desloga
+# de verdade depois desse tanto de segundos sem nenhuma request autenticada.
+SESSION_IDLE_TIMEOUT_SECONDS = env.int("SESSION_IDLE_TIMEOUT_SECONDS", default=1800)
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
