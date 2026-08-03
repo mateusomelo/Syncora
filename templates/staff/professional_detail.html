@@ -14,12 +14,15 @@
   </div>
 
   <div class="bg-white border border-gray-200 rounded-xl p-6">
-    <h2 class="font-medium mb-4">Horários de trabalho</h2>
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-medium">Horários de trabalho</h2>
+      <a href="{% url 'staff:working_hours' professional.pk %}" class="text-sm font-medium hover:underline" style="color:#3b5bff;">Editar horários</a>
+    </div>
     <ul class="space-y-1 text-sm">
       {% for wh in professional.working_hours.all %}
       <li>{{ wh.get_weekday_display }}: {{ wh.start_time }} – {{ wh.end_time }}{% if wh.break_start %} (intervalo {{ wh.break_start }}–{{ wh.break_end }}){% endif %}</li>
       {% empty %}
-      <li class="text-gray-400">Nenhum horário cadastrado ainda (gerenciável pelo /admin/ por enquanto).</li>
+      <li class="text-gray-400">Nenhum horário cadastrado ainda — sem isso não é possível marcar agendamentos.</li>
       {% endfor %}
     </ul>
   </div>

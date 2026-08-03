@@ -1,14 +1,15 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, DetailView, ListView, UpdateView
 
 from apps.core.views import HtmxTemplateMixin, TenantRequiredMixin
 
-from .forms import ProfessionalForm
+from .forms import ProfessionalForm, WorkingHoursForm
 from .models import Professional
 
 
@@ -57,3 +58,21 @@ class ProfessionalDeleteView(LoginRequiredMixin, TenantRequiredMixin, View):
         if request.htmx:
             return HttpResponse(status=200)
         return redirect("staff:list")
+
+
+class WorkingHoursUpdateView(LoginRequiredMixin, TenantRequiredMixin, View):
+    template_name = "staff/working_hours_form.html"
+
+    def get(self, request, pk):
+        professional = get_object_or_404(Professional, pk=pk)
+        form = WorkingHoursForm(professional=professional)
+        return render(request, self.template_name, {"professional": professional, "form": form})
+
+    def post(self, request, pk):
+        professional = get_object_or_404(Professional, pk=pk)
+        form = WorkingHoursForm(request.POST, professional=professional)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Horário de trabalho atualizado.")
+            return redirect("staff:detail", pk=pk)
+        return render(request, self.template_name, {"professional": professional, "form": form})
