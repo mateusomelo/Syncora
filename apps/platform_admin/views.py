@@ -266,7 +266,14 @@ class TenantDeleteView(PlatformAdminRequiredMixin, View):
     cascade) — isso bloqueia até o cascade automático do Tenant se esses
     registros ainda existirem. Por isso são apagados explicitamente aqui
     antes do hard_delete() do tenant, na ordem certa. Mesmo padrão usado
-    nos scripts de smoke test a sessão inteira (ver docs/memória do projeto)."""
+    nos scripts de smoke test a sessão inteira (ver docs/memória do projeto).
+
+    Deletar o Tenant já derruba a Membership em cascata (CASCADE), mas o
+    User em si (o login/e-mail) NÃO tem FK pro Tenant -- fica órfão no banco
+    pra sempre, prendendo o e-mail e impedindo recriar a empresa com o mesmo
+    e-mail depois (bug relatado pelo usuário). Por isso apagamos aqui também
+    qualquer User que, depois do cascade, não sobrou com Membership em
+    empresa nenhuma (nunca um is_platform_admin, por segurança)."""
 
     def post(self, request, pk):
         tenant = get_object_or_404(Tenant.all_objects, pk=pk)
@@ -277,10 +284,18 @@ class TenantDeleteView(PlatformAdminRequiredMixin, View):
         name = tenant.name
         _log(request, "tenant.delete", tenant, changes={"subdomain": tenant.subdomain})
 
+        member_user_ids = list(Membership.objects.filter(tenant=tenant).values_list("user_id", flat=True))
+
         Appointment.all_objects.filter(tenant=tenant).hard_delete()
         ClinicalRecord.all_objects.filter(tenant=tenant).hard_delete()
         ClientPackage.all_objects.filter(tenant=tenant).hard_delete()
         tenant.delete(hard=True)
+
+        still_has_membership = set(
+            Membership.objects.filter(user_id__in=member_user_ids).values_list("user_id", flat=True)
+        )
+        orphaned_ids = [uid for uid in member_user_ids if uid not in still_has_membership]
+        User.objects.filter(pk__in=orphaned_ids, is_platform_admin=False).delete()
 
         messages.success(request, f'"{name}" foi excluída permanentemente.')
         return redirect("platform_admin:tenant_list")
