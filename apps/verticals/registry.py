@@ -102,6 +102,18 @@ def get_active_menu_items(tenant):
     return items
 
 
+def get_active_vertical_key(tenant):
+    """A chave (ex.: "barbearia") do módulo que decide o tema hoje -- mesma
+    prioridade de get_active_theme(), só que devolvendo a chave em vez do
+    dict de cores. None quando nenhum módulo está ativo (tema padrão).
+    Usado pra escolher qual ilustração mostrar (não só qual cor)."""
+    active = get_active_verticals(tenant)
+    for key in VERTICALS:
+        if key in active:
+            return key
+    return None
+
+
 def get_active_theme(tenant):
     """Tema de cor da empresa, decidido 100% pelo módulo vertical ativo --
     não é escolha da empresa (ver Configurações > Aparência, que só edita

@@ -8,7 +8,7 @@ from django.utils.html import format_html
 from django.views import View
 from django.views.generic import CreateView, DetailView, FormView, ListView, TemplateView, UpdateView
 
-from apps.accounts.forms import MembershipInviteForm
+from apps.accounts.forms import MembershipInviteForm, generate_password
 from apps.accounts.models import Membership, User
 from apps.accounts.views import _is_last_active_admin
 from apps.audit.models import AuditLog, ImpersonationSession
@@ -17,8 +17,9 @@ from apps.scheduling.models import Appointment
 from apps.tenants.models import FeatureFlag, Tenant
 from apps.verticals.barber.models import ClientPackage
 from apps.verticals.psychology.models import ClinicalRecord
+from apps.verticals.registry import VERTICALS
 
-from .forms import PlatformAdminInviteForm, TenantForm
+from .forms import PlatformAdminInviteForm, TenantCreateForm, TenantForm
 
 
 def _jsonable(data):
@@ -75,14 +76,40 @@ class TenantListView(PlatformAdminRequiredMixin, ListView):
 
 class TenantCreateView(PlatformAdminRequiredMixin, CreateView):
     model = Tenant
-    form_class = TenantForm
+    form_class = TenantCreateForm
     template_name = "platform_admin/tenant_form.html"
     success_url = reverse_lazy("platform_admin:tenant_list")
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        BrandingSettings.objects.get_or_create(tenant=self.object)
-        _log(self.request, "tenant.create", self.object)
+        tenant = self.object
+        BrandingSettings.objects.get_or_create(tenant=tenant)
+
+        segment = form.cleaned_data["segment"]
+        FeatureFlag.objects.create(tenant=tenant, key=VERTICALS[segment]["flag_key"], enabled=True)
+
+        password = form.cleaned_data["admin_password"] or generate_password()
+        admin_user = User.objects.create_user(email=form.cleaned_data["admin_email"], password=password)
+        Membership.objects.create(user=admin_user, tenant=tenant, role=Membership.Role.ADMIN_EMPRESA)
+
+        _log(
+            self.request,
+            "tenant.create",
+            tenant,
+            changes={"segment": segment, "admin_email": admin_user.email},
+        )
+        if not form.cleaned_data["admin_password"]:
+            messages.success(
+                self.request,
+                format_html(
+                    '"{}" criada! Acesso do admin: <strong>{}</strong> — senha inicial: <code>{}</code> (copie agora, não aparece de novo).',
+                    tenant.name,
+                    admin_user.email,
+                    password,
+                ),
+            )
+        else:
+            messages.success(self.request, f'"{tenant.name}" criada com acesso para {admin_user.email}.')
         return response
 
 

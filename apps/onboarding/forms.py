@@ -3,10 +3,14 @@ from django.utils import timezone
 
 from apps.accounts.models import User
 from apps.tenants.models import Coupon, Plan, Tenant
+from apps.verticals.registry import VERTICALS
+
+SEGMENT_CHOICES = [(key, cfg["label"]) for key, cfg in VERTICALS.items()]
 
 
 class SignupForm(forms.Form):
     company_name = forms.CharField(max_length=200, label="Nome da empresa")
+    segment = forms.ChoiceField(choices=SEGMENT_CHOICES, label="Qual é o seu negócio?")
     subdomain = forms.SlugField(max_length=63, label="Subdomínio")
     admin_email = forms.EmailField(label="Seu e-mail")
     admin_password = forms.CharField(

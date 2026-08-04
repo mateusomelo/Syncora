@@ -13,17 +13,17 @@
     <div class="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
       <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Logo</h2>
       <div class="grid grid-cols-3 gap-4">
-        <div>
+        <div class="field-file-group">
           <label class="block text-xs font-medium mb-1.5 text-gray-600 dark:text-gray-400" for="{{ form.logo.id_for_label }}">Logo (fundo claro)</label>
           {% if object.logo %}<img src="{{ object.logo.url }}" class="h-10 mb-2 object-contain" alt="">{% endif %}
           {{ form.logo }}
         </div>
-        <div>
+        <div class="field-file-group">
           <label class="block text-xs font-medium mb-1.5 text-gray-600 dark:text-gray-400" for="{{ form.logo_dark.id_for_label }}">Logo (fundo escuro)</label>
           {% if object.logo_dark %}<img src="{{ object.logo_dark.url }}" class="h-10 mb-2 object-contain bg-gray-900 rounded px-1" alt="">{% endif %}
           {{ form.logo_dark }}
         </div>
-        <div>
+        <div class="field-file-group">
           <label class="block text-xs font-medium mb-1.5 text-gray-600 dark:text-gray-400" for="{{ form.favicon.id_for_label }}">Favicon</label>
           {% if object.favicon %}<img src="{{ object.favicon.url }}" class="h-10 mb-2 object-contain" alt="">{% endif %}
           {{ form.favicon }}
@@ -50,7 +50,7 @@
 
     <div class="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-4">
       <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-100">Tela de login</h2>
-      <div>
+      <div class="field-file-group">
         <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300" for="{{ form.login_background.id_for_label }}">Imagem de fundo</label>
         {% if object.login_background %}<img src="{{ object.login_background.url }}" class="h-20 mb-2 object-cover rounded-lg" alt="">{% endif %}
         {{ form.login_background }}
@@ -72,5 +72,11 @@
   input[type=text], input[type=file], textarea, select { @apply w-full rounded-xl border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100; }
   input[type=color] { @apply w-11 h-11 rounded-full border border-gray-200 dark:border-gray-700 p-0.5 cursor-pointer; }
   input[type=checkbox] { @apply w-4 h-4 rounded border-gray-300; }
+  /* Widget padrão do Django pro upload (ClearableFileInput) só solta texto
+     solto ("Atualmente: <link longo>") sem nenhum wrapper -- em colunas
+     estreitas isso quebra feio/sobrepõe. Como já mostro uma miniatura da
+     imagem atual acima, escondo esse texto cru e deixo só o essencial. */
+  .field-file-group a { display: none; }
+  .field-file-group br { display: none; }
 </style>
 {% endblock %}

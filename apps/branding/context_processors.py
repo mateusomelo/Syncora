@@ -1,4 +1,4 @@
-from apps.verticals.registry import DEFAULT_THEME, get_active_theme
+from apps.verticals.registry import DEFAULT_THEME, get_active_theme, get_active_vertical_key
 
 from .models import BrandingSettings
 
@@ -10,6 +10,7 @@ PLATFORM_DEFAULTS = {
     "login_background": None,
     "login_message": "",
     "show_powered_by": True,
+    "active_vertical": None,
     **DEFAULT_THEME,
 }
 
@@ -32,9 +33,10 @@ def branding(request):
 
     settings_obj = BrandingSettings.objects.filter(tenant=tenant).first()
     theme = get_active_theme(tenant)
+    active_vertical = get_active_vertical_key(tenant)
 
     if settings_obj is None:
-        return {"branding": {**PLATFORM_DEFAULTS, **theme}}
+        return {"branding": {**PLATFORM_DEFAULTS, "active_vertical": active_vertical, **theme}}
 
     return {
         "branding": {
@@ -45,6 +47,7 @@ def branding(request):
             "login_background": settings_obj.login_background,
             "login_message": settings_obj.login_message,
             "show_powered_by": settings_obj.show_powered_by,
+            "active_vertical": active_vertical,
             **theme,
         }
     }

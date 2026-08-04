@@ -9,7 +9,8 @@ from django.views.generic import FormView
 
 from apps.accounts.models import Membership, User
 from apps.branding.models import BrandingSettings
-from apps.tenants.models import Tenant
+from apps.tenants.models import FeatureFlag, Tenant
+from apps.verticals.registry import VERTICALS
 
 from .forms import SignupForm
 
@@ -30,6 +31,9 @@ class SignupView(FormView):
                 status=Tenant.Status.TRIAL,
             )
             BrandingSettings.objects.create(tenant=tenant)
+            FeatureFlag.objects.create(
+                tenant=tenant, key=VERTICALS[data["segment"]]["flag_key"], enabled=True
+            )
             user = User.objects.create_user(
                 email=data["admin_email"], password=data["admin_password"]
             )
